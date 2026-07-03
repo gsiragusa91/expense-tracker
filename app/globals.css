@@ -1,0 +1,114 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap");
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --background: #f5f9ff;
+  --surface: #ffffff;
+  --surface-soft: #eef6ff;
+  --surface-strong: #e4f1fb;
+  --line: #d8e7f5;
+  --foreground: #213547;
+  --ink-soft: #6f8296;
+  --ink: var(--foreground);
+  --muted: var(--ink-soft);
+  --border: var(--line);
+  --primary: #8ecae6;
+  --primary-strong: #4d96c8;
+  --primary-ink: #173044;
+  --primary-tint: rgba(142, 202, 230, 0.24);
+  --accent: #cdb4db;
+  --accent-tint: rgba(205, 180, 219, 0.28);
+  --success: #95d5b2;
+  --success-tint: rgba(149, 213, 178, 0.24);
+  --warning: #ffd6a5;
+  --warning-tint: rgba(255, 214, 165, 0.34);
+  --danger: #ff8f8f;
+  --danger-tint: rgba(255, 173, 173, 0.3);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #e9f3fb;
+}
+
+body {
+  min-height: 100svh;
+  margin: 0;
+  background:
+    radial-gradient(90% 60% at 50% 0%, rgba(142, 202, 230, 0.28), transparent 60%),
+    #e9f3fb;
+  color: var(--foreground);
+  font-family: "Nunito", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  accent-color: var(--primary-strong);
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.mobile-shell {
+  width: min(100vw, 430px);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  background:
+    radial-gradient(120% 58% at 50% 0%, rgba(205, 180, 219, 0.2), transparent 62%),
+    var(--background);
+  box-shadow: 0 0 44px rgba(55, 92, 125, 0.16);
+}
+
+.desktop-shell {
+  min-height: 100svh;
+  background:
+    radial-gradient(80% 55% at 50% 0%, rgba(142, 202, 230, 0.22), transparent 62%),
+    var(--background);
+}
+
+.tap-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+.field {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.86);
+  padding: 13px 14px;
+  color: var(--foreground);
+  outline: none;
+}
+
+.field:focus {
+  border-color: var(--primary-strong);
+  box-shadow: 0 0 0 4px var(--primary-tint);
+}
+
+.mic-glow {
+  box-shadow: 0 0 0 5px var(--primary-tint), 0 14px 24px rgba(77, 150, 200, 0.26);
+}
+
+.sheet {
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
