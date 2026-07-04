@@ -10,7 +10,7 @@ const nextConfig = {
   },
   serverExternalPackages: ["pdfjs-dist"],
   outputFileTracingIncludes: {
-    "/*": ["./node_modules/pdfjs-dist/**/*"]
+    "/**": ["./node_modules/pdfjs-dist/**/*"]
   },
   experimental: {
     serverActions: {

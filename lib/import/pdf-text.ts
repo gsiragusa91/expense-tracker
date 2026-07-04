@@ -14,18 +14,20 @@ type PdfJsModule = {
   }) => { promise: Promise<PdfDocument> };
 };
 
-const dynamicImport = new Function("specifier", "return import(specifier)") as (
-  specifier: string
-) => Promise<PdfJsModule>;
-
 export async function extractPdfTextFromBytes(bytes: Uint8Array): Promise<string> {
   let pdfjs: PdfJsModule;
   try {
-    pdfjs = await dynamicImport("pdfjs-dist/legacy/build/pdf.mjs");
-  } catch {
-    throw new Error(
-      "Falta instalar pdfjs-dist para leer PDFs. Ejecuta npm install cuando el registry este disponible."
-    );
+    // Import estatico con string literal: es lo que Next/@vercel/nft puede rastrear
+    // para incluir pdfjs-dist dentro de la funcion serverless. Un `new Function(import)`
+    // seria opaco al bundler y no se copiaria al deploy.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore pdfjs-dist se resuelve en el build de Vercel; puede faltar en local.
+    pdfjs = (await import("pdfjs-dist/legacy/build/pdf.mjs")) as PdfJsModule;
+  } catch (error) {
+    // No tapar el error real: si pdfjs no carga, propagar el mensaje original
+    // ayuda a diagnosticar (modulo faltante vs. incompatibilidad de runtime).
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`No pude cargar el lector de PDF (pdfjs-dist): ${detail}`);
   }
 
   const doc = await pdfjs.getDocument({
