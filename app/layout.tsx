@@ -4,12 +4,25 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Expense Tracker",
-  description: "Gastos compartidos de Guido y Dalu"
+  description: "Gastos compartidos de Guido y Dalu",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Gastos",
+    statusBarStyle: "default"
+  },
+  icons: {
+    icon: "/icon",
+    apple: "/apple-icon"
+  }
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#f5f9ff",
   viewportFit: "cover"
 };
 
