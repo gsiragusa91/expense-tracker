@@ -105,7 +105,7 @@ export function parseGaliciaVisaStatement(
     const parsed = parseConsumptionLine(line);
     if (!parsed) continue;
 
-    const category = categorizeMerchant(parsed.description);
+    const category = categorizeMerchant(parsed.description, options.learnedRules);
     const finance = isFinanceCharge(parsed.description);
     const categoryId = finance ? "banco-comisiones" : category.categoryId;
     const amountArs = parsed.currency === "USD" ? amountToArs(parsed.amountOriginal, "USD", fxRate) : parsed.amountArs;

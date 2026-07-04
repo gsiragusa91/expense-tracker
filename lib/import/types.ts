@@ -1,3 +1,4 @@
+import type { CategoryRule } from "@/lib/domain/categorize";
 import type { Currency, ProfileKey, ReviewStatus, StatementProvider } from "@/lib/domain/types";
 
 export type ParsedExpenseRow = {
@@ -41,4 +42,5 @@ export type ParseStatementOptions = {
   statementYear?: number;
   statementMonth?: number;
   fxRate?: number | null;
+  learnedRules?: CategoryRule[];
 };

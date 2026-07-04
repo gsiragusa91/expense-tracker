@@ -93,7 +93,7 @@ export function parseMercadoPagoStatement(
     const amountOriginal = parseAmount(amountUsdRaw ?? amountArsRaw);
     const amountArs = currency === "USD" ? amountToArs(amountOriginal, "USD", fxRate) : parseAmount(amountArsRaw);
     const merchantName = description.trim();
-    const category = categorizeMerchant(merchantName);
+    const category = categorizeMerchant(merchantName, options.learnedRules);
 
     rows.push({
       rowKey: `mp:${expenseDate}:${operationCode}:${amountOriginal}`,

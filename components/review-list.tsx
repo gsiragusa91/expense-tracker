@@ -49,7 +49,7 @@ export function ReviewList({ expenses, mode }: { expenses: Expense[]; mode: "dem
             </div>
             <div className="grid grid-cols-1 gap-2">
               <select name="categoryId" defaultValue={expense.categoryId ?? ""} className="field">
-                <option value="">Sin categoria</option>
+                <option value="">Sin asignar</option>
                 {CATEGORY_SEEDS.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}

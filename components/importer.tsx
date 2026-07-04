@@ -148,7 +148,7 @@ export function Importer() {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <select value={row.categoryId ?? ""} onChange={(event) => updateRow(index, { categoryId: event.target.value || null, reviewStatus: event.target.value ? "auto_categorized" : "pending" })} className="field">
-                    <option value="">Sin categoria</option>
+                    <option value="">Sin asignar</option>
                     {CATEGORY_SEEDS.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}

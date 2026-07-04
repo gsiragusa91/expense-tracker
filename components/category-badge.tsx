@@ -11,7 +11,7 @@ export function CategoryBadge({ categoryId }: { categoryId: string | null }) {
         color: "#213547"
       }}
     >
-      {category?.name ?? "Sin categoria"}
+      {category?.name ?? "Sin asignar"}
     </span>
   );
 }

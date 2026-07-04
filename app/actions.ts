@@ -18,6 +18,7 @@ import { parseGaliciaVisaStatement } from "@/lib/import/galicia";
 import { parseMercadoPagoStatement } from "@/lib/import/mercado-pago";
 import { extractPdfTextFromBytes } from "@/lib/import/pdf-text";
 import type { ParsedExpenseRow, ParsedStatement } from "@/lib/import/types";
+import { loadCategoryRules } from "@/lib/server/category-rules";
 import { getAppContext } from "@/lib/server/context";
 import { getMepSellRate } from "@/lib/server/fx";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
@@ -147,7 +148,10 @@ export async function createManualExpense(formData: FormData) {
   const fxRate = currency === "USD" ? explicitFx ?? (await getMepSellRate(todayISO())) : null;
   const description = formString(formData, "description") || "Gasto manual";
   const merchantName = formString(formData, "merchantName") || description;
-  const categoryId = formString(formData, "categoryId") || categorizeMerchant(merchantName).categoryId;
+  const learnedRules =
+    context.mode === "supabase" ? await loadCategoryRules(context.member.householdId) : [];
+  const categoryId =
+    formString(formData, "categoryId") || categorizeMerchant(merchantName, learnedRules).categoryId;
   const memberProfile = context.member.profileKey;
   const ownerProfileId = sanitizeProfile(formString(formData, "ownerProfileId"), memberProfile);
   const amountArs = amountToArs(amountOriginal, currency, fxRate);
@@ -182,10 +186,14 @@ export async function previewStatementImport(
     const fileHash = crypto.createHash("sha256").update(bytes).digest("hex");
     const text = await extractPdfTextFromBytes(bytes);
     const fxRate = payload.fxRate ?? (await getMepSellRate(todayISO()));
+    const context = await getAppContext();
+    const learnedRules =
+      context.mode === "supabase" ? await loadCategoryRules(context.member.householdId) : [];
     const parseOptions = {
       fxRate,
       statementYear: payload.statementYear,
-      statementMonth: payload.statementMonth
+      statementMonth: payload.statementMonth,
+      learnedRules
     };
     const statement =
       payload.provider === "mercado_pago"

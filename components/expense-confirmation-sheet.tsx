@@ -156,7 +156,7 @@ export function ExpenseConfirmationSheet({ open, drafts, title = "Confirmar gast
                     onChange={(event) => updateRow(index, { categoryId: event.target.value || null })}
                     className="field mt-1"
                   >
-                    <option value="">Sin categoria</option>
+                    <option value="">Sin asignar</option>
                     {CATEGORY_SEEDS.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
