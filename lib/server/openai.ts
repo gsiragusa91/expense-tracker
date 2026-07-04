@@ -1,4 +1,3 @@
-import { CATEGORY_SEEDS } from "@/lib/domain/categories";
 import { categorizeMerchant } from "@/lib/domain/categorize";
 import { todayISO } from "@/lib/domain/dates";
 import { amountToArs } from "@/lib/domain/money";
@@ -7,24 +6,43 @@ import type { Currency, ExpenseDraft } from "@/lib/domain/types";
 import { VOICE_ERRORS, VoiceError, type VoiceErrorCode } from "@/lib/voice/errors";
 import { VOICE_EXPENSE_JSON_SCHEMA } from "@/lib/voice/schema";
 
-// Lista "id — nombre" que le mostramos a GPT para que elija la categoría correcta.
-const CATEGORY_LIST = CATEGORY_SEEDS.map((c) => `${c.id} — ${c.name}`).join("\n");
-
+// La guía de categorías está sincronizada con CATEGORY_SEEDS (lib/domain/categories.ts):
+// el enum del schema garantiza ids válidos; acá le damos a GPT QUÉ entra en cada una.
+// Si se agrega/cambia una categoría en categories.ts, actualizar también esta guía.
+// Validado con un eval de 101 frases (scratchpad/eval-voice.mjs): 3 flags, todos ambiguos.
 const VOICE_SYSTEM_PROMPT = `Sos un asistente que convierte lo que alguien dice en voz en uno o más gastos domésticos en Argentina, listos para confirmar. Devolvés SOLO JSON según el schema. No guardás nada ni inventás gastos.
 
-Reglas:
+Reglas de parsing:
 - Si la frase tiene varios gastos, separalos en items distintos. Si no hay ningún gasto claro, devolvé la lista vacía.
-- Montos en formato argentino: el punto es separador de miles y la coma es decimal. "20.000" = 20000; "1.500,50" = 1500.5. Jerga: "luca"/"lucas" = 1000 ("20 lucas" = 20000), "palo" = 1000000, "gamba" = 100, "mango"/"mangos"/"pesos" = unidad. "20 mil" = 20000. amountOriginal es sólo el número, sin símbolos.
+- Montos en formato argentino: el punto es separador de miles y la coma es decimal. "20.000" = 20000; "1.500,50" = 1500.5. Jerga: "luca"/"lucas" = 1000 ("20 lucas" = 20000), "palo"/"palos" = 1000000, "gamba" = 100, "mango"/"mangos"/"pesos" = unidad. "20 mil" = 20000. amountOriginal es sólo el número.
 - Moneda: ARS por default. USD sólo si dice dólares, USD o "verdes".
-- merchantName: el comercio o lugar si lo menciona ("la verdulería", "Coto", "el kiosco de la esquina"). Si no hay comercio, poné una descripción corta del gasto.
-- description: frase corta y clara del gasto.
-- expenseDate: resolvé fechas relativas a "today" en formato YYYY-MM-DD ("ayer", "hoy", "el lunes pasado"). Si no menciona fecha, null.
+- expenseDate: fechas relativas a "today" en YYYY-MM-DD ("ayer", "hoy", "el lunes pasado"). Si no menciona fecha, null.
 - ownerProfileKey: "guido" o "dalu" SOLO si lo dice explícitamente; si no, null.
-- categoryId: elegí SIEMPRE el id más adecuado de la lista de abajo, infiriendo por el tipo de comercio o gasto (verdulería/almacén → verduleria-almacen, súper → supermercado, farmacia → salud-farmacia, nafta → nafta-peajes, uber/bondi/subte → transporte, resto/café → restaurantes-cafes, delivery → delivery). Usá "otros" SOLO si de verdad no encaja en ninguna.
-- confidence: 0 a 1, qué tan seguro estás de la interpretación completa del gasto.
+- merchantName: el comercio o lugar si lo nombra (Coto, la verdulería, YPF). Si no nombra ninguno, poné un nombre corto de QUÉ compró o pagó, de 1 a 3 palabras (ej. "leche de fórmula"→"Leche de fórmula", "un curso online"→"Curso online", "intereses de la tarjeta"→"Tarjeta de crédito"). El merchantName JAMÁS puede ser "null", "otros" ni "descripción del gasto".
+- description: frase corta y clara del gasto.
+- confidence: 0 a 1.
 
-Categorías disponibles (id — nombre):
-${CATEGORY_LIST}`;
+Categorización — elegí SIEMPRE el id más adecuado de esta lista según QUÉ es el gasto. Usá "otros" SÓLO si de verdad no encaja en ninguna:
+supermercado — supermercado o autoservicio (Coto, Carrefour, Día, Jumbo, "el súper", "el chino", autoservicio de barrio).
+verduleria-almacen — comida en comercios de barrio: verdulería, almacén, carnicería, fiambrería, panadería, dietética, kiosco, granja.
+delivery — comida pedida a domicilio por app (Rappi, PedidosYa).
+restaurantes-cafes — comer o tomar algo afuera: restaurante, bar, café, brunch, cervecería, heladería, comida al paso.
+transporte — moverse: Uber, Cabify, Didi, taxi, SUBE, colectivo, subte, tren, estacionamiento.
+nafta-peajes — auto en la calle: nafta, combustible, GNC, estaciones de servicio (YPF, Shell, Axion), peajes.
+hogar-limpieza — cosas para la casa: limpieza, electrodomésticos, muebles, deco, blanco/sábanas, ferretería (Frávega, etc.).
+expensas — expensas del edificio o administración del consorcio.
+mascotas — todo de mascotas: alimento de perro/gato, veterinario, arena, juguetes y peluquería de mascota.
+servicios-impuestos — servicios y boletas: luz, gas, agua, internet, teléfono/celular, cable, ABL, patente, impuestos, seguros.
+salud-farmacia — farmacia y salud: remedios, farmacia, obra social, análisis, óptica.
+consultorio — consultas de profesionales de salud: médico, dentista, psicólogo, kinesiólogo, pediatra.
+ropa — indumentaria y calzado de adultos: ropa, zapatillas, accesorios.
+educacion — educación: jardín, colegio, facultad, cursos, clases particulares, libros de estudio.
+ocio-suscripciones — ocio y suscripciones: Netflix, Spotify, ChatGPT, cine, recitales, gimnasio, streaming, salidas.
+viajes — viajes y turismo: pasajes, vuelos, hotel, Airbnb, alquiler de auto en viaje, excursiones.
+banco-comisiones — costos financieros: comisiones bancarias, mantenimiento de cuenta, intereses de tarjeta, comisiones de Mercado Pago.
+familia-bebe — cosas de bebés/niños: pañales, leche de fórmula, mamadera, cuna, cochecito, juguetes y ropa de bebé.
+regalos — regalos para otras personas: regalos de cumpleaños/casamiento, flores para alguien.
+otros — sólo si no encaja en ninguna (ej. extracción de cajero, corte de pelo/peluquería, préstamo a un amigo).`;
 
 const OPENAI_BASE_URL = "https://api.openai.com/v1";
 const DEFAULT_TRANSCRIPTION_MODEL = "gpt-4o-mini-transcribe";
