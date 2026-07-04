@@ -56,6 +56,24 @@ function isFinanceCharge(description: string) {
   return /INTERESES|IVA|IIBB|RG 5617|RG 4240/i.test(description);
 }
 
+// Impuestos/intereses de tarjeta (INTERESES FINANCIACION, DB IVA, IIBB, IVA RG 4240,
+// DB.RG 5617). No tienen comprobante, asi que no matchean como consumo: los detectamos
+// por keyword. El cargo es el ULTIMO monto de la linea (los del medio son base/alicuota).
+function parseTaxLine(line: string) {
+  const dateMatch = line.match(LINE_RE);
+  if (!dateMatch) return null;
+  const [, rawDate, rest] = dateMatch;
+  if (!isFinanceCharge(rest)) return null;
+  const expenseDate = parseGaliciaDate(rawDate);
+  if (!expenseDate) return null;
+  const amounts = rest.match(/-?[\d.]+,\d{2}-?/g);
+  if (!amounts?.length) return null;
+  const amount = parseAmount(amounts[amounts.length - 1]);
+  if (!amount) return null;
+  const description = rest.replace(/[\d].*/, "").replace(/\s*\$\s*$/, "").trim() || "Impuestos tarjeta";
+  return { expenseDate, description, amount };
+}
+
 function profileAfterTotalName(name: string) {
   if (/GUIDO/i.test(name)) return "dalu";
   return null;
@@ -113,6 +131,32 @@ export function parseGaliciaVisaStatement(
       continue;
     }
 
+    // Impuestos/intereses primero (detectados por keyword) para que no colisionen con
+    // el parseo de consumos. Se cargan como gasto en Banco / Comisiones.
+    const tax = parseTaxLine(line);
+    if (tax) {
+      rows.push({
+        rowKey: `galicia:tax:${tax.expenseDate}:${tax.description}:${tax.amount}`,
+        expenseDate: tax.expenseDate,
+        description: tax.description,
+        merchantName: tax.description,
+        merchantNormalized: normalizeMerchant(tax.description),
+        amountOriginal: tax.amount,
+        currency: "ARS",
+        amountArs: tax.amount,
+        fxRate: null,
+        categoryId: "banco-comisiones",
+        confidence: 0.95,
+        reviewStatus: "auto_categorized",
+        installments: null,
+        operationCode: null,
+        cardholderProfileKey: null,
+        include: true,
+        rawLine: line
+      });
+      continue;
+    }
+
     const parsed = parseConsumptionLine(line);
     if (!parsed) continue;
 
@@ -142,13 +186,15 @@ export function parseGaliciaVisaStatement(
     });
   }
 
-  // Solo positivos: el resumen declara consumos en bruto; las devoluciones (negativos)
-  // se guardan igual pero no entran en este chequeo de conciliacion.
+  // Solo positivos y sin impuestos: el resumen declara consumos en bruto (sin impuestos
+  // ni devoluciones). Los negativos e impuestos (banco-comisiones) se guardan igual pero
+  // no entran en este chequeo de conciliacion de consumos.
+  const isConsumo = (row: ParsedExpenseRow) => row.categoryId !== "banco-comisiones";
   const computedConsumptionArs = rows
-    .filter((row) => row.currency === "ARS" && row.amountArs > 0)
+    .filter((row) => row.currency === "ARS" && row.amountArs > 0 && isConsumo(row))
     .reduce((sum, row) => sum + row.amountArs, 0);
   const computedConsumptionUsd = rows
-    .filter((row) => row.currency === "USD" && row.amountOriginal > 0)
+    .filter((row) => row.currency === "USD" && row.amountOriginal > 0 && isConsumo(row))
     .reduce((sum, row) => sum + row.amountOriginal, 0);
 
   if (!rows.length) warnings.push("No se detectaron consumos en el resumen Galicia.");

@@ -101,6 +101,26 @@ test("captures credit notes as negative and reconciles on gross consumos", () =>
   assert.ok(!st.warnings.some((w) => w.toLowerCase().includes("no coincide")));
 });
 
+test("captures Galicia card taxes as banco-comisiones, separate from consumos", () => {
+  const fixture = [
+    "DETALLE DEL CONSUMO",
+    "01-05-26 K COMERCIO UNO 111111 100.000,00",
+    "TARJETA 5683 Total Consumos de GUIDO MART SIRAGUSA 100.000,00 0,00",
+    "28-05-26 INTERESES FINANCIACION $ 13.147,87",
+    "28-05-26 DB IVA $ 21% 13.147,87 2.761,05",
+    "28-05-26 IIBB PERCEP-CABA 2,00%( 18899,25) 377,98",
+    "TOTAL A PAGAR 116.286,90 0,00"
+  ].join("\n");
+  const st = parseGaliciaVisaStatement(fixture, { fxRate: 1000 });
+
+  const taxes = st.rows.filter((row) => row.categoryId === "banco-comisiones");
+  assert.equal(taxes.length, 3);
+  // el cargo es el ultimo monto de cada linea: 13.147,87 + 2.761,05 + 377,98
+  assert.equal(Number(taxes.reduce((s, row) => s + row.amountArs, 0).toFixed(2)), 16286.9);
+  // los consumos (100.000) cuadran; los impuestos no entran en esa conciliacion
+  assert.ok(!st.warnings.some((w) => w.toLowerCase().includes("no coincide")));
+});
+
 test("more specific learned rule wins over a broader one", () => {
   const rules = [
     { pattern: "PASEO", categoryId: "transporte", matchType: "contains" as const, priority: 100 },
