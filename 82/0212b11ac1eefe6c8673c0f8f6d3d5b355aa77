@@ -1,0 +1,22 @@
+lib/import/pdf-text.ts
+  s_2f71510043d66b::t_0be09a727d66ab 20-23
+  s_2f71510043d66b::t_eedb4f6250ad44 1-2
+lib/import/node-dom-polyfill.ts
+  s_2f71510043d66b::t_530b1b5399202d 1-125
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "820212b11ac1eefe6c8673c0f8f6d3d5b355aa77",
+  "prompts": {},
+  "sessions": {
+    "s_2f71510043d66b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcc9f3c8-6e48-4c40-ab2d-ed8efc23556a",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
