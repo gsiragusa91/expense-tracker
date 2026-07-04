@@ -1,0 +1,19 @@
+app/actions.ts
+  s_2f71510043d66b::t_790d2819ee7035 298-330
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "53987ff546951485d884401e3643192021631178",
+  "prompts": {},
+  "sessions": {
+    "s_2f71510043d66b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcc9f3c8-6e48-4c40-ab2d-ed8efc23556a",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
