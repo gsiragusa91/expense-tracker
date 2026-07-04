@@ -1,0 +1,20 @@
+lib/import/pdf-text.ts
+  s_2f71510043d66b::t_3ad3676e21d1d7 53,58-89
+  s_2f71510043d66b::t_3f46e250c9b5db 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "fb762f31ff474000d00366868a3392c134535611",
+  "prompts": {},
+  "sessions": {
+    "s_2f71510043d66b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcc9f3c8-6e48-4c40-ab2d-ed8efc23556a",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
