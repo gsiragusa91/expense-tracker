@@ -76,8 +76,9 @@ export function parseMercadoPagoStatement(
 
   for (const rawLine of text.split(/\r?\n/)) {
     const line = rawLine.trim();
+    // El monto captura signo y simbolo ($/US$): permite notas de credito (-$ 1.234,56).
     const match = line.match(
-      /^(\d{1,2}\/[a-z]{3})\s+(.+?)\s+(?:(\d+)\s+de\s+(\d+)\s+)?(\d{4,})\s+\$\s*([\d.]+,\d{2})(?:\s+US\$\s*([\d.]+,\d{2}))?$/i
+      /^(\d{1,2}\/[a-z]{3})\s+(.+?)\s+(?:(\d+)\s+de\s+(\d+)\s+)?(\d{4,})\s+(-?\s*\$\s*-?[\d.]+,\d{2}-?)(?:\s+(-?\s*US\$\s*-?[\d.]+,\d{2}-?))?$/i
     );
     if (!match) continue;
 
@@ -122,11 +123,13 @@ export function parseMercadoPagoStatement(
       ? `${statementYear}-${String(closing.month).padStart(2, "0")}-${String(closing.day).padStart(2, "0")}`
       : null;
 
+  // Solo positivos: el resumen declara consumos en bruto; las devoluciones (negativos)
+  // se guardan igual pero no entran en este chequeo de conciliacion.
   const computedConsumptionArs = rows
-    .filter((row) => row.currency === "ARS")
+    .filter((row) => row.currency === "ARS" && row.amountArs > 0)
     .reduce((sum, row) => sum + row.amountArs, 0);
   const computedConsumptionUsd = rows
-    .filter((row) => row.currency === "USD")
+    .filter((row) => row.currency === "USD" && row.amountOriginal > 0)
     .reduce((sum, row) => sum + row.amountOriginal, 0);
 
   // Total de consumos declarado por el resumen: linea "Consumos $ X US$ Y" del Consolidado.

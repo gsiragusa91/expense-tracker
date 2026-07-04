@@ -21,21 +21,24 @@ function parseConsumptionLine(line: string) {
 
   if (/TRANSFERENCIA DEUDA|SU PAGO EN PESOS/i.test(rest)) return null;
 
-  const usdMatch = rest.match(/^(.*?)\s*USD\s+([\d.]+,\d{2})\s+(\d{4,})\s+([\d.]+,\d{2})\s*$/i);
+  // -? adelante o atras: capturamos notas de credito/devoluciones (montos negativos).
+  const usdMatch = rest.match(/^(.*?)\s*USD\s+(-?[\d.]+,\d{2}-?)\s+(\d{4,})\s+(-?[\d.]+,\d{2}-?)\s*$/i);
   if (usdMatch) {
-    const [, reference, usdAmount, operationCode] = usdMatch;
+    const [, reference, usdLabel, operationCode, usdColumn] = usdMatch;
+    // El signo vive en la columna Dolares; si viene ahi, usamos ese valor.
+    const usdRaw = /-/.test(usdColumn) ? usdColumn : usdLabel;
     return {
       expenseDate,
       description: cleanReference(reference),
       installments: null,
       operationCode,
-      amountOriginal: parseAmount(usdAmount),
+      amountOriginal: parseAmount(usdRaw),
       amountArs: 0,
       currency: "USD" as const
     };
   }
 
-  const arsMatch = rest.match(/^(.*?)\s+(?:(\d{2}\/\d{2})\s+)?(\d{4,})\s+([\d.]+,\d{2})\s*$/);
+  const arsMatch = rest.match(/^(.*?)\s+(?:(\d{2}\/\d{2})\s+)?(\d{4,})\s+(-?[\d.]+,\d{2}-?)\s*$/);
   if (!arsMatch) return null;
   const [, reference, installments, operationCode, amountRaw] = arsMatch;
   return {
@@ -139,11 +142,13 @@ export function parseGaliciaVisaStatement(
     });
   }
 
+  // Solo positivos: el resumen declara consumos en bruto; las devoluciones (negativos)
+  // se guardan igual pero no entran en este chequeo de conciliacion.
   const computedConsumptionArs = rows
-    .filter((row) => row.currency === "ARS")
+    .filter((row) => row.currency === "ARS" && row.amountArs > 0)
     .reduce((sum, row) => sum + row.amountArs, 0);
   const computedConsumptionUsd = rows
-    .filter((row) => row.currency === "USD")
+    .filter((row) => row.currency === "USD" && row.amountOriginal > 0)
     .reduce((sum, row) => sum + row.amountOriginal, 0);
 
   if (!rows.length) warnings.push("No se detectaron consumos en el resumen Galicia.");

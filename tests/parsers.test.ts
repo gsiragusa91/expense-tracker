@@ -80,6 +80,27 @@ test("sanity check flags a statement whose consumos don't add up", () => {
   assert.ok(bad.warnings.some((warning) => warning.includes("no coincide")));
 });
 
+test("captures credit notes as negative and reconciles on gross consumos", () => {
+  const fixture = [
+    "DETALLE DEL CONSUMO",
+    "01-03-26 K COMERCIO UNO 111111 100.000,00",
+    "02-03-26 K DEVOLUCION SA 222222 -30.000,00",
+    "03-03-26 K NETFLIX USD 10,72 333333 10,72",
+    "04-03-26 K AMAZON PRIME USD -15,16 444444 -15,16",
+    "TARJETA 5683 Total Consumos de GUIDO MART SIRAGUSA 100.000,00 10,72",
+    "TOTAL A PAGAR 100.000,00 10,72"
+  ].join("\n");
+  const st = parseGaliciaVisaStatement(fixture, { fxRate: 1000 });
+
+  const dev = st.rows.find((row) => row.merchantName.includes("DEVOLUCION"));
+  assert.equal(dev?.amountArs, -30000);
+  const amazon = st.rows.find((row) => row.merchantName.includes("AMAZON"));
+  assert.equal(amazon?.currency, "USD");
+  assert.equal(amazon?.amountOriginal, -15.16);
+  // consumos brutos: ARS 100.000 y USD 10,72 -> cuadra, sin warning de conciliacion
+  assert.ok(!st.warnings.some((w) => w.toLowerCase().includes("no coincide")));
+});
+
 test("more specific learned rule wins over a broader one", () => {
   const rules = [
     { pattern: "PASEO", categoryId: "transporte", matchType: "contains" as const, priority: 100 },
