@@ -1,0 +1,19 @@
+app/layout.tsx
+  s_10e809768e4aa8::t_a0cb5fd3deef18 6,18-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "9f8a3e48bac3891b45bdaec1f34ae9ebc3a41226",
+  "prompts": {},
+  "sessions": {
+    "s_10e809768e4aa8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f2984-9a61-7b42-a629-a51232209339",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
