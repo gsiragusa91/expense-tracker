@@ -186,15 +186,16 @@ export function parseGaliciaVisaStatement(
     });
   }
 
-  // Solo positivos y sin impuestos: el resumen declara consumos en bruto (sin impuestos
-  // ni devoluciones). Los negativos e impuestos (banco-comisiones) se guardan igual pero
-  // no entran en este chequeo de conciliacion de consumos.
+  // Neto y sin impuestos: el "Total Consumos" del resumen es NETO (incluye devoluciones,
+  // ej. una compra +15,16 y su reintegro -15,16 se cancelan). Por eso sumamos todos los
+  // consumos con su signo. Los impuestos (banco-comisiones) van en un bloque aparte, no
+  // entran en el total de consumos, asi que los excluimos.
   const isConsumo = (row: ParsedExpenseRow) => row.categoryId !== "banco-comisiones";
   const computedConsumptionArs = rows
-    .filter((row) => row.currency === "ARS" && row.amountArs > 0 && isConsumo(row))
+    .filter((row) => row.currency === "ARS" && isConsumo(row))
     .reduce((sum, row) => sum + row.amountArs, 0);
   const computedConsumptionUsd = rows
-    .filter((row) => row.currency === "USD" && row.amountOriginal > 0 && isConsumo(row))
+    .filter((row) => row.currency === "USD" && isConsumo(row))
     .reduce((sum, row) => sum + row.amountOriginal, 0);
 
   if (!rows.length) warnings.push("No se detectaron consumos en el resumen Galicia.");

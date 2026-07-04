@@ -123,13 +123,13 @@ export function parseMercadoPagoStatement(
       ? `${statementYear}-${String(closing.month).padStart(2, "0")}-${String(closing.day).padStart(2, "0")}`
       : null;
 
-  // Solo positivos: el resumen declara consumos en bruto; las devoluciones (negativos)
-  // se guardan igual pero no entran en este chequeo de conciliacion.
+  // Neto: el total de consumos del resumen incluye las devoluciones (negativos), asi que
+  // sumamos todos los consumos con su signo para que la conciliacion cierre.
   const computedConsumptionArs = rows
-    .filter((row) => row.currency === "ARS" && row.amountArs > 0)
+    .filter((row) => row.currency === "ARS")
     .reduce((sum, row) => sum + row.amountArs, 0);
   const computedConsumptionUsd = rows
-    .filter((row) => row.currency === "USD" && row.amountOriginal > 0)
+    .filter((row) => row.currency === "USD")
     .reduce((sum, row) => sum + row.amountOriginal, 0);
 
   // Total de consumos declarado por el resumen: linea "Consumos $ X US$ Y" del Consolidado.
