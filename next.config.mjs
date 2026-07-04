@@ -8,6 +8,10 @@ const nextConfig = {
   turbopack: {
     root: projectRoot
   },
+  serverExternalPackages: ["pdfjs-dist"],
+  outputFileTracingIncludes: {
+    "/*": ["./node_modules/pdfjs-dist/**/*"]
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "8mb"
