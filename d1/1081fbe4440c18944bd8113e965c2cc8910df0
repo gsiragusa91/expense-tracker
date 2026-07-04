@@ -1,0 +1,43 @@
+lib/domain/categorize.ts
+  s_2f71510043d66b::t_09b22f2c17ed38 12,21-22,24-29,33,43-44,53,68-73,109-111
+components/category-badge.tsx
+  s_2f71510043d66b::t_ac8e77a7eca6b4 14
+lib/import/types.ts
+  s_2f71510043d66b::t_ea64c115cf75ef 45
+  s_2f71510043d66b::t_17e7285053633e 1
+lib/domain/categories.ts
+  s_2f71510043d66b::t_884787a8f01c09 15
+  s_2f71510043d66b::t_4fadef9b6a2927 10
+components/review-list.tsx
+  s_2f71510043d66b::t_a6a661eecfd637 52
+lib/import/galicia.ts
+  s_2f71510043d66b::t_e0db883222fd37 108
+components/expense-confirmation-sheet.tsx
+  s_2f71510043d66b::t_73e62fed459389 159
+lib/server/category-rules.ts
+  s_2f71510043d66b::t_a47e7845be4e6b 1-28
+app/actions.ts
+  s_2f71510043d66b::t_68ee04d5b94a60 21
+  s_2f71510043d66b::t_7127cb1846bd10 151-154
+  s_2f71510043d66b::t_d9e29bd6fdee09 189-191,195-196
+components/importer.tsx
+  s_2f71510043d66b::t_e820592c975c5e 151
+lib/import/mercado-pago.ts
+  s_2f71510043d66b::t_e9aab690803ba1 96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "d11081fbe4440c18944bd8113e965c2cc8910df0",
+  "prompts": {},
+  "sessions": {
+    "s_2f71510043d66b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcc9f3c8-6e48-4c40-ab2d-ed8efc23556a",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
