@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --loader ./tests/ts-loader.mjs --test tests/*.test.ts",
     "seed:local-real": "node --loader ./tests/ts-loader.mjs scripts/generate-local-real-data.ts",
+    "bootstrap:local": "node scripts/bootstrap-local-deps.mjs",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
@@ -19,10 +20,12 @@
     "@supabase/supabase-js": "2.108.1",
     "lucide-react": "0.561.0",
     "next": "16.2.9",
-    "pdfjs-dist": "5.4.394",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "zod": "4.4.3"
+  },
+  "optionalDependencies": {
+    "pdfjs-dist": "5.4.394"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.0",

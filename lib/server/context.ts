@@ -67,7 +67,7 @@ export async function getAppContext(): Promise<AppContext> {
   if (!user) return { mode: "unauthenticated" };
 
   const memberRes = await supabase
-    .from("household_members")
+    .from("expense_household_members")
     .select("id, household_id, email, profile_key, display_name")
     .eq("user_id", user.id)
     .maybeSingle();
@@ -75,7 +75,7 @@ export async function getAppContext(): Promise<AppContext> {
   if (memberRes.error || !memberRes.data) return { mode: "unauthenticated" };
 
   const expensesRes = await supabase
-    .from("expenses")
+    .from("expense_expenses")
     .select("*")
     .eq("household_id", memberRes.data.household_id)
     .order("expense_date", { ascending: false })

@@ -130,7 +130,7 @@ export async function confirmExpenseDrafts(drafts: ExpenseDraft[]): Promise<Acti
     .map((draft) => normalizeDraftForInsert(draft, context.member.householdId, context.member.id));
   if (!rows.length) return { ok: false, error: "No hay gastos para guardar." };
 
-  const { error } = await supabase.from("expenses").insert(rows);
+  const { error } = await supabase.from("expense_expenses").insert(rows);
   if (error) return { ok: false, error: error.message };
 
   revalidateApp();
@@ -225,7 +225,7 @@ export async function commitStatementImport(
   if (!supabase) return { ok: false, error: "Supabase no está configurado." };
 
   const duplicate = await supabase
-    .from("statement_imports")
+    .from("expense_statement_imports")
     .select("id")
     .eq("household_id", context.member.householdId)
     .eq("provider", payload.provider)
@@ -234,7 +234,7 @@ export async function commitStatementImport(
   if (duplicate.data?.id) return { ok: true, data: { count: 0, duplicate: true } };
 
   const importRes = await supabase
-    .from("statement_imports")
+    .from("expense_statement_imports")
     .insert({
       household_id: context.member.householdId,
       provider: payload.provider,
@@ -284,7 +284,7 @@ export async function commitStatementImport(
     statement_import_id: importRes.data.id
   }));
 
-  const { error } = await supabase.from("expenses").insert(rows);
+  const { error } = await supabase.from("expense_expenses").insert(rows);
   if (error) return { ok: false, error: error.message };
 
   revalidateApp();
@@ -304,13 +304,13 @@ export async function updateExpenseReviewAction(formData: FormData) {
   const merchantNormalized = formString(formData, "merchantNormalized");
 
   await supabase
-    .from("expenses")
+    .from("expense_expenses")
     .update({ category_id: categoryId, review_status: reviewStatus, confidence: categoryId ? 1 : null })
     .eq("household_id", context.member.householdId)
     .eq("id", id);
 
   if (learn && categoryId && merchantNormalized) {
-    await supabase.from("category_rules").upsert(
+    await supabase.from("expense_category_rules").upsert(
       {
         household_id: context.member.householdId,
         pattern: merchantNormalized,
