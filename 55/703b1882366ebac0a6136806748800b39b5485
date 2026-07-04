@@ -1,0 +1,19 @@
+lib/server/openai.ts
+  s_ff6670e2dc3013::t_1fbfe995c0bdae 9-12,15,17,19,21-23,25-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "55703b1882366ebac0a6136806748800b39b5485",
+  "prompts": {},
+  "sessions": {
+    "s_ff6670e2dc3013": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cb55e9db-1f98-45ad-968c-70ca26f3f9e8",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
