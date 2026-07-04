@@ -295,6 +295,39 @@ export async function commitStatementImport(
   const { error } = await supabase.from("expense_expenses").insert(rows);
   if (error) return { ok: false, error: error.message };
 
+  // Feedback loop desde el preview: aprendemos SOLO las correcciones. Si la categoria
+  // que dejaste difiere de la que el categorizador habria sugerido (con las reglas
+  // actuales), guardamos una regla merchant -> categoria para los proximos imports.
+  const learnedRules = await loadCategoryRules(context.member.householdId);
+  const seen = new Set<string>();
+  const newRules: Array<{
+    household_id: string;
+    pattern: string;
+    match_type: "contains";
+    category_id: string;
+    priority: number;
+    created_by_member_id: string;
+  }> = [];
+  for (const row of includedRows) {
+    if (!row.categoryId || !row.merchantNormalized) continue;
+    if (seen.has(row.merchantNormalized)) continue;
+    if (categorizeMerchant(row.merchantName, learnedRules).categoryId === row.categoryId) continue;
+    seen.add(row.merchantNormalized);
+    newRules.push({
+      household_id: context.member.householdId,
+      pattern: row.merchantNormalized,
+      match_type: "contains",
+      category_id: row.categoryId,
+      priority: 100,
+      created_by_member_id: context.member.id
+    });
+  }
+  if (newRules.length) {
+    await supabase
+      .from("expense_category_rules")
+      .upsert(newRules, { onConflict: "household_id,pattern,match_type" });
+  }
+
   revalidateApp();
   return { ok: true, data: { count: rows.length, duplicate: false } };
 }
