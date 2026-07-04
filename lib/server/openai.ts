@@ -1,3 +1,4 @@
+import { CATEGORY_SEEDS } from "@/lib/domain/categories";
 import { categorizeMerchant } from "@/lib/domain/categorize";
 import { todayISO } from "@/lib/domain/dates";
 import { amountToArs } from "@/lib/domain/money";
@@ -5,6 +6,25 @@ import { normalizeMerchant } from "@/lib/domain/merchants";
 import type { Currency, ExpenseDraft } from "@/lib/domain/types";
 import { VOICE_ERRORS, VoiceError, type VoiceErrorCode } from "@/lib/voice/errors";
 import { VOICE_EXPENSE_JSON_SCHEMA } from "@/lib/voice/schema";
+
+// Lista "id — nombre" que le mostramos a GPT para que elija la categoría correcta.
+const CATEGORY_LIST = CATEGORY_SEEDS.map((c) => `${c.id} — ${c.name}`).join("\n");
+
+const VOICE_SYSTEM_PROMPT = `Sos un asistente que convierte lo que alguien dice en voz en uno o más gastos domésticos en Argentina, listos para confirmar. Devolvés SOLO JSON según el schema. No guardás nada ni inventás gastos.
+
+Reglas:
+- Si la frase tiene varios gastos, separalos en items distintos. Si no hay ningún gasto claro, devolvé la lista vacía.
+- Montos en formato argentino: el punto es separador de miles y la coma es decimal. "20.000" = 20000; "1.500,50" = 1500.5. Jerga: "luca"/"lucas" = 1000 ("20 lucas" = 20000), "palo" = 1000000, "gamba" = 100, "mango"/"mangos"/"pesos" = unidad. "20 mil" = 20000. amountOriginal es sólo el número, sin símbolos.
+- Moneda: ARS por default. USD sólo si dice dólares, USD o "verdes".
+- merchantName: el comercio o lugar si lo menciona ("la verdulería", "Coto", "el kiosco de la esquina"). Si no hay comercio, poné una descripción corta del gasto.
+- description: frase corta y clara del gasto.
+- expenseDate: resolvé fechas relativas a "today" en formato YYYY-MM-DD ("ayer", "hoy", "el lunes pasado"). Si no menciona fecha, null.
+- ownerProfileKey: "guido" o "dalu" SOLO si lo dice explícitamente; si no, null.
+- categoryId: elegí SIEMPRE el id más adecuado de la lista de abajo, infiriendo por el tipo de comercio o gasto (verdulería/almacén → verduleria-almacen, súper → supermercado, farmacia → salud-farmacia, nafta → nafta-peajes, uber/bondi/subte → transporte, resto/café → restaurantes-cafes, delivery → delivery). Usá "otros" SOLO si de verdad no encaja en ninguna.
+- confidence: 0 a 1, qué tan seguro estás de la interpretación completa del gasto.
+
+Categorías disponibles (id — nombre):
+${CATEGORY_LIST}`;
 
 const OPENAI_BASE_URL = "https://api.openai.com/v1";
 const DEFAULT_TRANSCRIPTION_MODEL = "gpt-4o-mini-transcribe";
@@ -91,11 +111,7 @@ export async function extractExpensesFromTranscript({
         messages: [
           {
             role: "system",
-            content:
-              "Sos un parser de gastos domésticos en Argentina. Convertís una transcripción corta en uno o más gastos para confirmar. " +
-              "No guardes nada: solo devolvé datos estructurados. Si el usuario dice varios gastos, separalos. " +
-              "Si no menciona fecha, usá null. Si no menciona persona, usá null. No inventes gastos. " +
-              "Moneda default ARS si el usuario no dice dólares."
+            content: VOICE_SYSTEM_PROMPT
           },
           {
             role: "user",
@@ -146,7 +162,13 @@ export async function extractExpensesFromTranscript({
       typeof record.amountOriginal === "number" && Number.isFinite(record.amountOriginal)
         ? record.amountOriginal
         : 0;
-    const category = categorizeMerchant(`${merchantName} ${optionalString(record.categoryHint) ?? ""}`);
+    // GPT elige la categoría (id válido por el enum del schema). Si cae en "otros",
+    // le damos una última chance a la heurística de comercios conocidos.
+    const gptCategoryId = optionalString(record.categoryId);
+    const categoryId =
+      gptCategoryId && gptCategoryId !== "otros"
+        ? gptCategoryId
+        : categorizeMerchant(merchantName).categoryId ?? gptCategoryId ?? "otros";
     const ownerProfileId =
       record.ownerProfileKey === "guido" || record.ownerProfileKey === "dalu"
         ? record.ownerProfileKey
@@ -163,14 +185,14 @@ export async function extractExpensesFromTranscript({
       currency,
       fxRate: currency === "USD" ? fxRate : null,
       amountArs,
-      categoryId: category.categoryId,
+      categoryId,
       sourceType: "voice" as const,
       ownerProfileId,
       notes: optionalString(record.notes) ?? undefined,
       confidence:
         typeof record.confidence === "number" && Number.isFinite(record.confidence)
           ? Math.max(0, Math.min(1, record.confidence))
-          : category.confidence,
+          : 0.5,
       reviewStatus: "pending" as const
     };
   });
