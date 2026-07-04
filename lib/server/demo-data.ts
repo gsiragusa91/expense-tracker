@@ -85,6 +85,7 @@ export function buildDashboardSummary(
   );
   const totalArs = inMonth.reduce((sum, expense) => sum + expense.amountArs, 0);
   const byCategory = CATEGORY_SEEDS.map((category) => ({
+    categoryId: category.id,
     category: category.name,
     color: category.color,
     amountArs: inMonth

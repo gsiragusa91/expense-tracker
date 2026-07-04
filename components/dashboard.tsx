@@ -1,7 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { AlertCircle, ArrowUpRight, CreditCard, Mic, PencilLine } from "lucide-react";
-import { CategoryBadge } from "@/components/category-badge";
+import { CategoryIcon } from "@/components/category-icon";
+import { SpendCharts } from "@/components/spend-charts";
+import { categoryById } from "@/lib/domain/categories";
 import { formatMoney } from "@/lib/domain/money";
 import type { DashboardSummary, DashboardView, Expense } from "@/lib/domain/types";
 
@@ -86,6 +88,8 @@ export function Dashboard({
         </div>
       </section>
 
+      <SpendCharts expenses={expenses} month={summary.month} view={view} />
+
       <section className="flex gap-2 overflow-x-auto rounded-[20px] border border-[var(--border)] bg-white p-2 shadow-sm">
         {availableMonths.map((month) => (
           <Link
@@ -113,7 +117,9 @@ export function Dashboard({
 
       <section className="rounded-[24px] border border-[var(--border)] bg-white p-4 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-extrabold text-[var(--ink)]">Categorias</h2>
+          <h2 className="flex items-center gap-2 text-lg font-extrabold text-[var(--ink)]">
+            <span aria-hidden>📊</span> Categorias
+          </h2>
           <Link href="/review" className="flex items-center gap-1 text-sm font-bold text-[var(--primary-strong)]">
             Revisar <ArrowUpRight size={16} />
           </Link>
@@ -122,7 +128,10 @@ export function Dashboard({
           {summary.byCategory.map((row) => (
             <div key={row.category}>
               <div className="mb-1 flex items-center justify-between text-sm">
-                <span className="font-semibold text-[var(--ink)]">{row.category}</span>
+                <span className="flex items-center gap-1.5 font-semibold text-[var(--ink)]">
+                  <CategoryIcon categoryId={row.categoryId} size={22} />
+                  {row.category}
+                </span>
                 <span className="font-bold text-[var(--ink)]">{formatMoney(row.amountArs)}</span>
               </div>
               <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-soft)]">
@@ -145,18 +154,19 @@ export function Dashboard({
       ) : null}
 
       <section className="rounded-[24px] border border-[var(--border)] bg-white p-4 shadow-sm">
-        <h2 className="mb-3 text-lg font-extrabold text-[var(--ink)]">Ultimos movimientos</h2>
+        <h2 className="mb-3 flex items-center gap-2 text-lg font-extrabold text-[var(--ink)]">
+          <span aria-hidden>🕒</span> Ultimos movimientos
+        </h2>
         <div className="space-y-2">
           {recent.map((expense) => (
-            <div key={expense.id} className="flex items-center justify-between gap-3 rounded-2xl bg-[var(--surface-soft)] p-3">
-              <div className="min-w-0">
+            <div key={expense.id} className="flex items-center gap-3 rounded-2xl bg-[var(--surface-soft)] p-3">
+              <CategoryIcon categoryId={expense.categoryId} size={40} />
+              <div className="min-w-0 flex-1">
                 <p className="truncate font-bold text-[var(--ink)]">{expense.description}</p>
-                <div className="mt-1 flex items-center gap-2">
-                  <CategoryBadge categoryId={expense.categoryId} />
-                  <span className="text-xs text-[var(--muted)]">
-                    {expense.ownerProfileId === "dalu" || expense.cardholderProfileId === "dalu" ? "Dalu" : "Guido"}
-                  </span>
-                </div>
+                <p className="mt-0.5 truncate text-xs text-[var(--muted)]">
+                  {categoryById(expense.categoryId).name} ·{" "}
+                  {expense.ownerProfileId === "dalu" || expense.cardholderProfileId === "dalu" ? "Dalu" : "Guido"}
+                </p>
               </div>
               <p className="shrink-0 font-black text-[var(--ink)]">{formatMoney(expense.amountArs)}</p>
             </div>
@@ -166,7 +176,9 @@ export function Dashboard({
       </section>
 
       <section className="rounded-[24px] border border-[var(--border)] bg-white p-4 shadow-sm">
-        <h2 className="mb-3 text-lg font-extrabold text-[var(--ink)]">Top merchants</h2>
+        <h2 className="mb-3 flex items-center gap-2 text-lg font-extrabold text-[var(--ink)]">
+          <span aria-hidden>🏪</span> Top merchants
+        </h2>
         <div className="flex flex-wrap gap-2">
           {summary.topMerchants.map((merchant) => (
             <span key={merchant.merchant} className="rounded-full bg-[var(--surface-soft)] px-3 py-2 text-sm font-semibold text-[var(--ink)]">

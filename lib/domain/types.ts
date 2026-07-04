@@ -20,6 +20,8 @@ export type Category = {
   id: string;
   name: string;
   color: string;
+  // Emoji que identifica visualmente la categoría (estilo "emoji cálido").
+  icon: string;
   kind:
     | "food"
     | "home"
@@ -71,7 +73,7 @@ export type DashboardSummary = {
   manualTotalArs: number;
   voiceTotalArs: number;
   pendingCount: number;
-  byCategory: Array<{ category: string; color: string; amountArs: number }>;
+  byCategory: Array<{ categoryId: string; category: string; color: string; amountArs: number }>;
   byProfile: Array<{ profile: string; amountArs: number }>;
   topMerchants: Array<{ merchant: string; amountArs: number }>;
 };
