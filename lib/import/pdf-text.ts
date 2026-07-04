@@ -36,8 +36,12 @@ export async function extractPdfTextFromBytes(bytes: Uint8Array): Promise<string
     throw new Error(`No pude cargar el lector de PDF (pdfjs-dist): ${detail}`);
   }
 
+  // pdfjs 5.x rechaza Buffer explicitamente aunque herede de Uint8Array.
+  // Copiamos a un Uint8Array plano (constructor === Uint8Array) para satisfacerlo.
+  const data = new Uint8Array(bytes);
+
   const doc = await pdfjs.getDocument({
-    data: bytes,
+    data,
     disableFontFace: true,
     isEvalSupported: false
   }).promise;
