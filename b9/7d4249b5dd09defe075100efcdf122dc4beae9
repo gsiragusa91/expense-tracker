@@ -1,0 +1,29 @@
+docs/HANDOFF.md
+  s_10e809768e4aa8::t_c41e613f64fac9 1-134
+README.md
+  s_10e809768e4aa8::t_c41e613f64fac9 35,39-46,74-87
+docs/DECISIONS.md
+  s_10e809768e4aa8::t_c41e613f64fac9 21,23-34
+docs/TEST_PLAN.md
+  s_10e809768e4aa8::t_c41e613f64fac9 25-33
+package.json
+  s_10e809768e4aa8::t_c41e613f64fac9 15
+scripts/generate-supabase-real-import-sql.mjs
+  s_10e809768e4aa8::t_c41e613f64fac9 1-256
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "b97d4249b5dd09defe075100efcdf122dc4beae9",
+  "prompts": {},
+  "sessions": {
+    "s_10e809768e4aa8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f2984-9a61-7b42-a629-a51232209339",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
