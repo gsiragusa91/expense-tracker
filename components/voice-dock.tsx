@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Mic, Square, X } from "lucide-react";
 import type { ExpenseDraft, HouseholdMember } from "@/lib/domain/types";
 import { ExpenseConfirmationSheet } from "./expense-confirmation-sheet";
@@ -43,6 +43,14 @@ export function VoiceDock({ open, member, onClose }: Props) {
   const [drafts, setDrafts] = useState<ExpenseDraft[]>([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [transcript, setTranscript] = useState<string | null>(null);
+
+  // Al abrir el dock, arrancamos a grabar directo (un solo tap desde la barra).
+  // El botón interno queda como stop / reintento. El permiso de mic ya fue otorgado
+  // en usos previos, así que getUserMedia acá funciona sin perder el user-gesture.
+  useEffect(() => {
+    if (open && state === "idle") void startRecording();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   if (!open) return confirmOpen ? (
     <ExpenseConfirmationSheet

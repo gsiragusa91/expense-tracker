@@ -91,12 +91,22 @@ button:disabled {
 
 .field {
   width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
   border-radius: var(--radius-md);
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.86);
   padding: 13px 14px;
   color: var(--foreground);
+  /* 16px evita el auto-zoom de iOS al enfocar; line-height normaliza baseline */
+  font-size: 16px;
+  line-height: 1.2;
   outline: none;
+}
+/* iOS le da a date/select altura y baseline propios: los forzamos a la misma caja */
+select.field,
+input[type="date"].field {
+  height: 48px;
 }
 
 .field:focus {
