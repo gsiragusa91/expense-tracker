@@ -1,0 +1,50 @@
+lib/server/context.ts
+  s_ff6670e2dc3013::t_a0986045ecf8d6 39
+lib/server/openai.ts
+  s_ff6670e2dc3013::t_d99b441de535b0 208
+supabase/migrations/20260704180000_add_payment_method.sql
+  s_ff6670e2dc3013::t_7bd9583a0cd093 1-22
+lib/domain/types.ts
+  s_ff6670e2dc3013::t_64230e7f0bcb65 79
+  s_ff6670e2dc3013::t_8f743979b83783 5
+  s_ff6670e2dc3013::t_e94959c72866ca 53
+components/expense-confirmation-sheet.tsx
+  s_ff6670e2dc3013::t_9f15112282643e 168-181
+  s_ff6670e2dc3013::t_5669dd9d77a8c1 8-9
+components/manual-expense-form.tsx
+  s_ff6670e2dc3013::t_eebc6dabd30854 75-81
+  s_ff6670e2dc3013::t_3efb3c79b00ae4 9
+app/actions.ts
+  s_ff6670e2dc3013::t_f026b2544161bc 83
+  s_ff6670e2dc3013::t_8da4fcfcb0327d 289
+  s_ff6670e2dc3013::t_1e72117088e5a6 160,174,178
+  s_ff6670e2dc3013::t_ef53921d97e8a8 17
+lib/server/demo-data.ts
+  s_ff6670e2dc3013::t_63bb1feb9b2ccb 69
+  s_ff6670e2dc3013::t_d6486cfee727ad 105-111
+  s_ff6670e2dc3013::t_1ff631a5789de8 132
+  s_ff6670e2dc3013::t_e68b441f19edbc 2
+  s_ff6670e2dc3013::t_78896b9c76465a 28
+  s_ff6670e2dc3013::t_124de72211b05a 50
+lib/domain/payment.ts
+  s_ff6670e2dc3013::t_59c22e4f44f9b3 1-26
+components/dashboard.tsx
+  s_ff6670e2dc3013::t_ec87313c65486a 3
+  s_ff6670e2dc3013::t_38e35e81a4703f 85-92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "b80c4afce512d7dedfb1f48f6ea8b18b15a5c026",
+  "prompts": {},
+  "sessions": {
+    "s_ff6670e2dc3013": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cb55e9db-1f98-45ad-968c-70ca26f3f9e8",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@gmail.com>"
+    }
+  }
+}
