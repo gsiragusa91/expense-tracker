@@ -1,0 +1,24 @@
+app/globals.css
+  s_ff6670e2dc3013::t_1111739d0641d6 94-95,101-103,106-109
+components/tab-bar.tsx
+  s_ff6670e2dc3013::t_77c9ebae037e16 19-38,40-50
+components/voice-dock.tsx
+  s_ff6670e2dc3013::t_f40118e276ce7a 3
+  s_ff6670e2dc3013::t_d26de7051cbb4a 47-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "5f4e7c31cecb769eb302e33a9ee4fa2b3704c63a",
+  "prompts": {},
+  "sessions": {
+    "s_ff6670e2dc3013": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cb55e9db-1f98-45ad-968c-70ca26f3f9e8",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
