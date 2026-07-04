@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { categorizeMerchant } from "@/lib/domain/categorize";
 import { parseGaliciaVisaStatement } from "@/lib/import/galicia";
 import { parseMercadoPagoStatement } from "@/lib/import/mercado-pago";
+import { cleanEnvValue } from "@/lib/supabase/env";
 
 function buildMpFixture() {
   const lines = [
@@ -62,4 +63,10 @@ test("categorization includes Expensas as first-class seed", () => {
 
   assert.equal(result.categoryId, "expensas");
   assert.ok(result.confidence >= 0.8);
+});
+
+test("Supabase env cleanup tolerates common Vercel paste mistakes", () => {
+  assert.equal(cleanEnvValue(" 'abc.def.ghi' "), "abc.def.ghi");
+  assert.equal(cleanEnvValue("NEXT_PUBLIC_SUPABASE_ANON_KEY=abc.def.ghi"), "abc.def.ghi");
+  assert.equal(cleanEnvValue("  https://demo.supabase.co  "), "https://demo.supabase.co");
 });
