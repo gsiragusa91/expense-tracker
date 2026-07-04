@@ -1,0 +1,40 @@
+lib/domain/types.ts
+  s_2f71510043d66b::t_8c385a27491ae3 38-40
+  s_2f71510043d66b::t_fddc3d42ef711a 8-11
+lib/server/context.ts
+  s_2f71510043d66b::t_408e4e0dd48599 29
+  s_2f71510043d66b::t_b2edf740f8499c 102,105,107-111,115-116
+  s_2f71510043d66b::t_400268077a3220 2-3,5
+lib/server/demo-data.ts
+  s_2f71510043d66b::t_b1fdc1f2203ccb 2
+  s_2f71510043d66b::t_3f1206dbb57780 128,131
+  s_2f71510043d66b::t_5f88f4f942808d 72-85
+app/page.tsx
+  s_2f71510043d66b::t_5d7c420179302b 5,10,12-14,19-24
+app/actions.ts
+  s_2f71510043d66b::t_a494a8e8bf64db 270,272,275-276
+  s_2f71510043d66b::t_691ce70633415e 72
+supabase/migrations/20260704120000_add_purchase_date.sql
+  s_2f71510043d66b::t_4857302803ba98 1-7
+components/dashboard.tsx
+  s_2f71510043d66b::t_3674d9f08065aa 47-70
+  s_2f71510043d66b::t_62566d52a1864f 6
+  s_2f71510043d66b::t_221b8a485c48dc 93
+  s_2f71510043d66b::t_15c0bb3b59a69c 23-24,29,33-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "d1267c5dc6b3113f6deecb4c624d0b1c9d0b686f",
+  "prompts": {},
+  "sessions": {
+    "s_2f71510043d66b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcc9f3c8-6e48-4c40-ab2d-ed8efc23556a",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
