@@ -1,0 +1,52 @@
+lib/domain/types.ts
+  s_8089624c1a8d0e::t_ca4e494c85ced8 23
+  s_8089624c1a8d0e::t_0a3c51952caaa9 76
+  s_8089624c1a8d0e::t_4574716dfd1828 24
+components/category-icon.tsx
+  s_8089624c1a8d0e::t_02ac0b82b0a5cb 3-4,13,17-19,21
+  s_8089624c1a8d0e::t_0b77e888be44ed 1-2,5-12,14-16,20,22-24
+docs/icon-proposals.html
+  s_8089624c1a8d0e::t_db15b08cb9c73c 1-234
+components/dashboard.tsx
+  s_ff6670e2dc3013::t_d40dc5fb605cae 5
+  s_8089624c1a8d0e::t_d8b5bde066eef7 4
+  s_ff6670e2dc3013::t_5904c4e5e30a6a 91-92
+  s_8089624c1a8d0e::t_6d55f5a5a65f55 120-122
+  s_8089624c1a8d0e::t_6cf7e01a95ccc8 6
+  s_8089624c1a8d0e::t_320f104dfa6a07 131-134
+  s_8089624c1a8d0e::t_9d0dbb5e9b03bb 157-159
+  s_8089624c1a8d0e::t_fdbc649ca98152 168
+  s_8089624c1a8d0e::t_6677d710cd7332 179-181
+lib/domain/categories.ts
+  s_8089624c1a8d0e::t_da8d874af157d2 4-23
+components/category-badge.tsx
+  s_8089624c1a8d0e::t_8fe3c450ffa2d0 7,14
+components/spend-charts.tsx
+  s_ff6670e2dc3013::t_8276ea0200e8a4 1-273
+lib/server/demo-data.ts
+  s_8089624c1a8d0e::t_2915c97a595bd5 88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "9491a5a166907b1a73a799a19bd19688d747a2aa",
+  "prompts": {},
+  "sessions": {
+    "s_8089624c1a8d0e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "277a5114-2cc2-40e0-8095-2bdcf6d0aa6d",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@gmail.com>"
+    },
+    "s_ff6670e2dc3013": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cb55e9db-1f98-45ad-968c-70ca26f3f9e8",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@gmail.com>"
+    }
+  }
+}
