@@ -1,5 +1,5 @@
 import { CATEGORY_SEEDS } from "@/lib/domain/categories";
-import type { DashboardSummary, Expense, HouseholdMember } from "@/lib/domain/types";
+import type { DashboardSummary, DashboardView, Expense, HouseholdMember } from "@/lib/domain/types";
 import { monthKey, todayISO } from "@/lib/domain/dates";
 
 export const DEMO_MEMBER: HouseholdMember = {
@@ -69,8 +69,20 @@ export const DEMO_EXPENSES: Expense[] = [
   }
 ];
 
-export function buildDashboardSummary(expenses: Expense[], month = monthKey(todayISO())): DashboardSummary {
-  const inMonth = expenses.filter((expense) => monthKey(expense.expenseDate) === month && expense.reviewStatus !== "excluded");
+// La fecha con la que agrupamos segun la vista: cashflow = expenseDate (vencimiento),
+// devengado = purchaseDate (fecha de compra; cae a expenseDate si falta).
+export function viewDate(expense: Expense, view: DashboardView) {
+  return view === "devengado" ? expense.purchaseDate ?? expense.expenseDate : expense.expenseDate;
+}
+
+export function buildDashboardSummary(
+  expenses: Expense[],
+  month = monthKey(todayISO()),
+  view: DashboardView = "cashflow"
+): DashboardSummary {
+  const inMonth = expenses.filter(
+    (expense) => monthKey(viewDate(expense, view)) === month && expense.reviewStatus !== "excluded"
+  );
   const totalArs = inMonth.reduce((sum, expense) => sum + expense.amountArs, 0);
   const byCategory = CATEGORY_SEEDS.map((category) => ({
     category: category.name,
@@ -113,10 +125,10 @@ export function buildDashboardSummary(expenses: Expense[], month = monthKey(toda
   };
 }
 
-export function latestExpenseMonth(expenses: Expense[]) {
+export function latestExpenseMonth(expenses: Expense[], view: DashboardView = "cashflow") {
   const months = expenses
     .filter((expense) => expense.reviewStatus !== "excluded")
-    .map((expense) => monthKey(expense.expenseDate))
+    .map((expense) => monthKey(viewDate(expense, view)))
     .sort((a, b) => b.localeCompare(a));
   return months[0] ?? monthKey(todayISO());
 }

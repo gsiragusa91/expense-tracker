@@ -5,6 +5,10 @@ export type StatementProvider = "mercado_pago" | "galicia_visa";
 
 export type ProfileKey = "guido" | "dalu";
 
+// Vista del dashboard: cashflow agrupa por cuándo pagás (expenseDate = vencimiento);
+// devengado agrupa por cuándo compraste (purchaseDate).
+export type DashboardView = "cashflow" | "devengado";
+
 export type HouseholdMember = {
   id: string;
   email: string;
@@ -31,6 +35,9 @@ export type Category = {
 export type ExpenseDraft = {
   id?: string;
   expenseDate: string;
+  // Fecha de compra original (devengado). expenseDate = fecha de cashflow (vencimiento del
+  // resumen para imports; misma fecha que la compra para gastos manuales/voz).
+  purchaseDate?: string | null;
   description: string;
   merchantName: string;
   merchantNormalized: string;

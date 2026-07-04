@@ -1,7 +1,8 @@
 import { CATEGORY_SEEDS } from "@/lib/domain/categories";
-import type { Expense, HouseholdMember } from "@/lib/domain/types";
+import { monthKey } from "@/lib/domain/dates";
+import type { DashboardView, Expense, HouseholdMember } from "@/lib/domain/types";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import { DEMO_EXPENSES, DEMO_MEMBER, buildDashboardSummary, latestExpenseMonth } from "./demo-data";
+import { DEMO_EXPENSES, DEMO_MEMBER, buildDashboardSummary, latestExpenseMonth, viewDate } from "./demo-data";
 import { loadLocalRealExpenses } from "./local-real-data";
 
 export type AppContext =
@@ -25,6 +26,7 @@ function mapExpense(row: Record<string, unknown>): Expense {
     createdAt: String(row.created_at),
     createdByMemberId: String(row.created_by_member_id),
     expenseDate: String(row.expense_date),
+    purchaseDate: row.purchase_date == null ? null : String(row.purchase_date),
     description: String(row.description),
     merchantName: String(row.merchant_name),
     merchantNormalized: String(row.merchant_normalized),
@@ -97,16 +99,21 @@ export async function getAppContext(): Promise<AppContext> {
   };
 }
 
-export async function getDashboardData(month?: string) {
+export async function getDashboardData(month?: string, view: DashboardView = "cashflow") {
   const context = await getAppContext();
   if (context.mode === "unauthenticated") return null;
-  const selectedMonth = month ?? latestExpenseMonth(context.expenses);
+  const selectedMonth = month ?? latestExpenseMonth(context.expenses, view);
   const availableMonths = Array.from(
-    new Set(context.expenses.filter((expense) => expense.reviewStatus !== "excluded").map((expense) => expense.expenseDate.slice(0, 7)))
+    new Set(
+      context.expenses
+        .filter((expense) => expense.reviewStatus !== "excluded")
+        .map((expense) => monthKey(viewDate(expense, view)))
+    )
   ).sort((a, b) => b.localeCompare(a));
   return {
     ...context,
-    summary: buildDashboardSummary(context.expenses, selectedMonth),
+    view,
+    summary: buildDashboardSummary(context.expenses, selectedMonth, view),
     availableMonths
   };
 }

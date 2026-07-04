@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { AlertCircle, ArrowUpRight, CreditCard, Mic, PencilLine } from "lucide-react";
 import { CategoryBadge } from "@/components/category-badge";
 import { formatMoney } from "@/lib/domain/money";
-import type { DashboardSummary, Expense } from "@/lib/domain/types";
+import type { DashboardSummary, DashboardView, Expense } from "@/lib/domain/types";
 
 const monthFormatter = new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric", timeZone: "UTC" });
 
@@ -20,19 +20,54 @@ function pct(current: number, previous: number) {
 export function Dashboard({
   summary,
   expenses,
-  availableMonths = [summary.month]
+  availableMonths = [summary.month],
+  view = "cashflow"
 }: {
   summary: DashboardSummary;
   expenses: Expense[];
   availableMonths?: string[];
+  view?: DashboardView;
 }) {
   const delta = pct(summary.totalArs, summary.previousTotalArs);
   const maxCategory = Math.max(...summary.byCategory.map((row) => row.amountArs), 1);
-  const currentMonthExpenses = expenses.filter((expense) => expense.expenseDate.startsWith(summary.month));
+  const dateFor = (expense: Expense) =>
+    view === "devengado" ? expense.purchaseDate ?? expense.expenseDate : expense.expenseDate;
+  const makeHref = (month: string, nextView: DashboardView) => {
+    const params = new URLSearchParams();
+    if (month) params.set("month", month);
+    if (nextView !== "cashflow") params.set("view", nextView);
+    const query = params.toString();
+    return query ? `/?${query}` : "/";
+  };
+  const currentMonthExpenses = expenses.filter((expense) => dateFor(expense).startsWith(summary.month));
   const recent = currentMonthExpenses.slice(0, 5);
 
   return (
     <div className="space-y-4">
+      <section className="flex items-center gap-1 rounded-full border border-[var(--border)] bg-white p-1 shadow-sm">
+        <Link
+          href={makeHref(summary.month, "cashflow")}
+          className={`flex-1 rounded-full px-4 py-2 text-center text-sm font-bold ${
+            view === "cashflow" ? "bg-[var(--primary-strong)] text-white" : "text-[var(--muted)]"
+          }`}
+        >
+          Cashflow
+        </Link>
+        <Link
+          href={makeHref(summary.month, "devengado")}
+          className={`flex-1 rounded-full px-4 py-2 text-center text-sm font-bold ${
+            view === "devengado" ? "bg-[var(--primary-strong)] text-white" : "text-[var(--muted)]"
+          }`}
+        >
+          Devengado
+        </Link>
+      </section>
+      <p className="px-1 text-xs text-[var(--muted)]">
+        {view === "cashflow"
+          ? "Agrupado por cuándo pagás (vencimiento del resumen)."
+          : "Agrupado por cuándo compraste (fecha del consumo)."}
+      </p>
+
       <section className="rounded-[24px] border border-[var(--border)] bg-white p-4 shadow-sm">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -55,7 +90,7 @@ export function Dashboard({
         {availableMonths.map((month) => (
           <Link
             key={month}
-            href={month === summary.month ? "/" : `/?month=${month}`}
+            href={makeHref(month, view)}
             className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold capitalize ${
               month === summary.month
                 ? "bg-[var(--primary-strong)] text-white"

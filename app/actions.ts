@@ -69,6 +69,7 @@ function normalizeDraftForInsert(draft: ExpenseDraft, householdId: string, membe
   return {
     household_id: householdId,
     expense_date: draft.expenseDate,
+    purchase_date: draft.purchaseDate ?? draft.expenseDate,
     description: draft.description,
     merchant_name: draft.merchantName,
     merchant_normalized: draft.merchantNormalized || normalizeMerchant(draft.merchantName),
@@ -266,9 +267,13 @@ export async function commitStatementImport(
   const rows = includedRows.map((row) => ({
     ...normalizeDraftForInsert(
       {
+        // Cashflow: fecha en que pagás el resumen (vencimiento). Fallbacks: cierre, mes, compra.
         expenseDate:
+          payload.statement.dueDate ??
           payload.statement.closingDate ??
           (payload.statement.statementMonth ? `${payload.statement.statementMonth}-01` : row.expenseDate),
+        // Devengado: fecha de compra original del consumo.
+        purchaseDate: row.expenseDate,
         description: row.description,
         merchantName: row.merchantName,
         merchantNormalized: row.merchantNormalized,
