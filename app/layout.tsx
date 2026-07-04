@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  applicationName: "Gastos",
   title: "Expense Tracker",
   description: "Gastos compartidos de Guido y Dalu",
   manifest: "/manifest.webmanifest",
@@ -14,6 +15,9 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icon",
     apple: "/apple-icon"
+  },
+  other: {
+    "apple-mobile-web-app-capable": "yes"
   }
 };
 
