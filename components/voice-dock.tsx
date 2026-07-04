@@ -11,6 +11,29 @@ type Props = {
   onClose: () => void;
 };
 
+// Cada navegador graba en un formato distinto (Chrome/Firefox: webm; iOS Safari: mp4).
+// Elegimos el primero que el navegador soporte de verdad; si ninguno, dejamos que decida él.
+function pickAudioMimeType() {
+  if (typeof MediaRecorder === "undefined" || !MediaRecorder.isTypeSupported) return "";
+  for (const type of ["audio/webm", "audio/mp4", "audio/ogg"]) {
+    if (MediaRecorder.isTypeSupported(type)) return type;
+  }
+  return "";
+}
+
+// OpenAI usa la extensión del archivo para saber el formato: tiene que matchear los bytes reales.
+function extensionForMime(mime: string) {
+  const base = mime.split(";")[0].trim();
+  const map: Record<string, string> = {
+    "audio/webm": "webm",
+    "audio/mp4": "mp4",
+    "audio/mpeg": "mp3",
+    "audio/ogg": "ogg",
+    "audio/wav": "wav"
+  };
+  return map[base] ?? "webm";
+}
+
 export function VoiceDock({ open, member, onClose }: Props) {
   const recorderRef = useRef<MediaRecorder | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -35,11 +58,11 @@ export function VoiceDock({ open, member, onClose }: Props) {
     />
   ) : null;
 
-  async function sendAudio(blob: Blob) {
+  async function sendAudio(blob: Blob, mimeType: string) {
     setState("parsing");
     setError(null);
     const formData = new FormData();
-    formData.append("audio", blob, "expense-voice.webm");
+    formData.append("audio", blob, `expense-voice.${extensionForMime(mimeType)}`);
     const response = await fetch("/api/voice/parse", { method: "POST", body: formData });
     const body = (await response.json()) as { transcript?: string; expenses?: ExpenseDraft[]; error?: string; detail?: string; warnings?: string[] };
     if (!response.ok || !body.expenses?.length) {
@@ -60,15 +83,18 @@ export function VoiceDock({ open, member, onClose }: Props) {
       setError(null);
       chunksRef.current = [];
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+      const preferredType = pickAudioMimeType();
+      const recorder = new MediaRecorder(stream, preferredType ? { mimeType: preferredType } : undefined);
       recorderRef.current = recorder;
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) chunksRef.current.push(event.data);
       };
       recorder.onstop = () => {
         stream.getTracks().forEach((track) => track.stop());
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        void sendAudio(blob);
+        // Usamos el formato REAL que grabó el navegador, no uno hardcodeado.
+        const actualType = recorder.mimeType || preferredType || "audio/webm";
+        const blob = new Blob(chunksRef.current, { type: actualType });
+        void sendAudio(blob, actualType);
       };
       recorder.start();
       setState("recording");
