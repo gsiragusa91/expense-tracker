@@ -1,0 +1,30 @@
+tests/parsers.test.ts
+  s_2f71510043d66b::t_6d28ba390202df 83-103
+lib/import/mercado-pago.ts
+  s_2f71510043d66b::t_c3570c0d994b48 79,81
+  s_2f71510043d66b::t_e67db9fffb7d07 126-127,129,132
+lib/domain/money.ts
+  s_2f71510043d66b::t_d26b1d8449f2b8 4,8-9,16-17
+  s_2f71510043d66b::t_8758080a8c8d97 5-7
+lib/import/galicia.ts
+  s_2f71510043d66b::t_fbdd473d9c4bfc 24-25,27-29,35,41
+  s_2f71510043d66b::t_a5a00ecf90c9d6 145-146,148,151
+supabase/migrations/20260704140000_allow_negative_amounts.sql
+  s_2f71510043d66b::t_ce7951ac1c65fa 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "069af20fadea7444ebf07b420712c8d7b7c0ac24",
+  "prompts": {},
+  "sessions": {
+    "s_2f71510043d66b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcc9f3c8-6e48-4c40-ab2d-ed8efc23556a",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
