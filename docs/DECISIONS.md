@@ -18,9 +18,17 @@
 - Nav inferior flotante: Inicio, Cargar, microfono central, Importar, Revisar.
 - Paleta pastel clara con base azul suave.
 
-## Pendientes para deploy
+## Deploy y entorno
 
-- Confirmar emails finales de Guido y Dalu.
-- Crear proyecto Supabase y ejecutar migracion + seed.
-- Configurar `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `OPENAI_API_KEY`.
-- Configurar Vercel y nombre final del repo.
+- Repo: `gsiragusa91/expense-tracker`.
+- Vercel: `https://expense-tracker-siragusa.vercel.app/`.
+- Supabase: se reutiliza el proyecto de Baby's Project (`xqnvzqnyykiyzktkwogl`) como subproyecto.
+- Auth final: `guido.siragusa@gmail.com` y `dalubeche@gmail.com`.
+- Migracion y seed remoto: aplicados.
+
+## Pendientes
+
+- Cargar datos reales de PDFs en Supabase cuando Guido autorice explicitamente la subida de transacciones financieras reales.
+- Validar E2E productivo con datos reales.
+- Iterar categorizacion aprendida desde la pantalla `Revisar`.
+- Completar settings, fuentes de pago y edicion de tasa MEP.

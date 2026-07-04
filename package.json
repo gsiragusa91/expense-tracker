@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --loader ./tests/ts-loader.mjs --test tests/*.test.ts",
     "seed:local-real": "node --loader ./tests/ts-loader.mjs scripts/generate-local-real-data.ts",
+    "seed:real-sql": "node scripts/generate-supabase-real-import-sql.mjs",
     "bootstrap:local": "node scripts/bootstrap-local-deps.mjs",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build"
   },

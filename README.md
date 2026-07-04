@@ -32,14 +32,18 @@ Sin Supabase la app corre en modo demo. Sin OpenAI, el flujo de voz devuelve un 
 
 ## Supabase
 
-La app esta preparada para vivir como subproyecto dentro del Supabase de Baby's Project.
+La app vive como subproyecto dentro del Supabase de Baby's Project.
 Por eso toda la base usa prefijo `expense_*`: comparte Auth, Postgres y env vars, pero no
 mezcla tablas con el dominio de Baby.
 
-1. Usar el proyecto Supabase ya linkeado en Baby's Project.
-2. Crear usuarios Auth para `guido.siragusa@gmail.com` y `dalubeche@gmail.com`.
-3. Ejecutar `supabase/migrations/20260703170000_initial_expense_tracker.sql`.
-4. Ejecutar `supabase/seed.example.sql`.
+Estado actual:
+
+- Proyecto Supabase: `xqnvzqnyykiyzktkwogl`.
+- Usuarios Auth: `guido.siragusa@gmail.com` y `dalubeche@gmail.com`.
+- Migracion remota aplicada desde Baby's Project.
+- Seed remoto aplicado con hogar, miembros, fuentes de pago y categorias.
+
+El detalle operativo para continuar esta en [docs/HANDOFF.md](docs/HANDOFF.md).
 
 ## Desarrollo
 
@@ -67,3 +71,17 @@ npm run check
 
 `pdfjs-dist` es opcional para que la app pueda correr sin esa dependencia durante el fallback;
 el import real de PDFs necesita instalarla.
+
+## Datos reales
+
+Los PDFs reales ya fueron parseados localmente y el JSON resultante vive en
+`data/local-real-expenses.json`, ignorado por Git. Para generar el SQL de carga remota:
+
+```bash
+EXPENSE_HOUSEHOLD_ID="<household uuid>" \
+EXPENSE_CREATED_BY_MEMBER_ID="<member uuid>" \
+npm run seed:real-sql
+```
+
+La carga a Supabase requiere autorizacion explicita porque envia transacciones financieras
+reales a un servicio externo.

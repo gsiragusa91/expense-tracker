@@ -22,3 +22,12 @@
 - Reglas:
   - Recategorizar un merchant y aprender regla.
   - Aplicar regla en imports siguientes.
+
+## E2E productivo pendiente
+
+- Login Guido en `https://expense-tracker-siragusa.vercel.app/`.
+- Cargar los PDFs reales parseados a Supabase, previa autorizacion explicita.
+- Verificar dashboard con 97 gastos: 38 de Mercado Pago y 59 de Galicia.
+- Editar categorias de algunos pendientes y confirmar que quedan persistidas.
+- Login Dalu y verificar mismo hogar con autoria separada.
+- Grabar un gasto por voz, revisar pre-confirmacion, editar una fila y confirmar.
