@@ -1,0 +1,21 @@
+lib/domain/categorize.ts
+  s_2f71510043d66b::t_7d71e179f434ab 90-108,115-117,120-122
+tests/parsers.test.ts
+  s_2f71510043d66b::t_602f61cc3f360d 83-91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "256e119beb66e92e95aa2fceb6433b78bf81a33c",
+  "prompts": {},
+  "sessions": {
+    "s_2f71510043d66b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcc9f3c8-6e48-4c40-ab2d-ed8efc23556a",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
