@@ -1,3 +1,5 @@
+import { ensureNodeDomPolyfills } from "./node-dom-polyfill";
+
 type PdfTextItem = { str?: string };
 type PdfPage = {
   getTextContent: () => Promise<{ items: PdfTextItem[] }>;
@@ -15,6 +17,10 @@ type PdfJsModule = {
 };
 
 export async function extractPdfTextFromBytes(bytes: Uint8Array): Promise<string> {
+  // pdfjs referencia DOMMatrix/Path2D/ImageData al cargar; en Node hay que instalarlas
+  // ANTES del import() o el modulo explota con "DOMMatrix is not defined".
+  ensureNodeDomPolyfills();
+
   let pdfjs: PdfJsModule;
   try {
     // Import estatico con string literal: es lo que Next/@vercel/nft puede rastrear
