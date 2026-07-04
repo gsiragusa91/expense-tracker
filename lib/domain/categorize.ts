@@ -87,23 +87,39 @@ function matchesRule(merchant: string, rule: CategoryRule) {
   return merchant.includes(pattern);
 }
 
+// Entre todas las reglas que matchean, gana la mas ESPECIFICA: mayor prioridad y, a
+// igual prioridad, patron mas largo. Asi "PASEO RONDA" (restaurante) le gana a "PASEO"
+// (peaje) y no dependemos del orden de la lista.
+function bestMatch(merchant: string, rules: CategoryRule[]): CategoryRule | null {
+  let best: CategoryRule | null = null;
+  let bestLen = -1;
+  for (const rule of rules) {
+    if (!matchesRule(merchant, rule)) continue;
+    const priority = rule.priority ?? 0;
+    const length = normalizeText(rule.pattern).length;
+    const bestPriority = best?.priority ?? 0;
+    if (!best || priority > bestPriority || (priority === bestPriority && length > bestLen)) {
+      best = rule;
+      bestLen = length;
+    }
+  }
+  return best;
+}
+
 export function categorizeMerchant(
   merchantName: string,
   learnedRules: CategoryRule[] = []
 ): Categorization {
   const merchant = normalizeMerchant(merchantName);
-  const sortedRules = [...learnedRules].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 
-  for (const rule of sortedRules) {
-    if (matchesRule(merchant, rule)) {
-      return { categoryId: rule.categoryId, confidence: 0.98, reason: "rule" };
-    }
+  const learned = bestMatch(merchant, learnedRules);
+  if (learned) {
+    return { categoryId: learned.categoryId, confidence: 0.98, reason: "rule" };
   }
 
-  for (const rule of SEED_RULES) {
-    if (matchesRule(merchant, rule)) {
-      return { categoryId: rule.categoryId, confidence: 0.82, reason: "seed" };
-    }
+  const seed = bestMatch(merchant, SEED_RULES);
+  if (seed) {
+    return { categoryId: seed.categoryId, confidence: 0.82, reason: "seed" };
   }
 
   // Sin match: dejamos la categoria vacia ("Sin asignar") para que el usuario la

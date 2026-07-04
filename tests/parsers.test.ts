@@ -80,6 +80,15 @@ test("sanity check flags a statement whose consumos don't add up", () => {
   assert.ok(bad.warnings.some((warning) => warning.includes("no coincide")));
 });
 
+test("more specific learned rule wins over a broader one", () => {
+  const rules = [
+    { pattern: "PASEO", categoryId: "transporte", matchType: "contains" as const, priority: 100 },
+    { pattern: "PASEO RONDA", categoryId: "restaurantes-cafes", matchType: "contains" as const, priority: 100 }
+  ];
+  assert.equal(categorizeMerchant("PASEO RONDA", rules).categoryId, "restaurantes-cafes");
+  assert.equal(categorizeMerchant("PASEO DEL BAJO", rules).categoryId, "transporte");
+});
+
 test("categorization includes Expensas as first-class seed", () => {
   const result = categorizeMerchant("Administracion consorcio expensas edificio");
 
