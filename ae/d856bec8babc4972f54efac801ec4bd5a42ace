@@ -1,0 +1,23 @@
+supabase/seed.example.sql
+  s_10e809768e4aa8::t_0fc24bf0983d05 2,6,11,14,18,21
+  s_10e809768e4aa8::t_13c29d0a6727b2 22,25,28
+scripts/bootstrap-local-deps.mjs
+  s_10e809768e4aa8::t_e7a5bb862133f1 1,26-61,77-78
+  s_10e809768e4aa8::t_9e68c2797d4313 2-25,62-76,79-84
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "aed856bec8babc4972f54efac801ec4bd5a42ace",
+  "prompts": {},
+  "sessions": {
+    "s_10e809768e4aa8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f2984-9a61-7b42-a629-a51232209339",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
