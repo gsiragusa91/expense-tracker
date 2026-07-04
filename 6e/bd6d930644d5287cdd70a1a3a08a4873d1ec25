@@ -1,0 +1,21 @@
+package.json
+  s_10e809768e4aa8::t_ca6ed143a13756 24
+next.config.mjs
+  s_10e809768e4aa8::t_ca6ed143a13756 11-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "6ebd6d930644d5287cdd70a1a3a08a4873d1ec25",
+  "prompts": {},
+  "sessions": {
+    "s_10e809768e4aa8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f2984-9a61-7b42-a629-a51232209339",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
