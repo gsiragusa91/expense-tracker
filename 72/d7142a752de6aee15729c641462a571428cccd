@@ -1,0 +1,21 @@
+app/api/debug/supabase/route.ts
+  s_10e809768e4aa8::t_c4934cd70d1830 1-10
+tests/parsers.test.ts
+  s_10e809768e4aa8::t_c4934cd70d1830 6,67-71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "72d7142a752de6aee15729c641462a571428cccd",
+  "prompts": {},
+  "sessions": {
+    "s_10e809768e4aa8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f2984-9a61-7b42-a629-a51232209339",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
