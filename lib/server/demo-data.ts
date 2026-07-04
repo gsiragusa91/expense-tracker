@@ -1,4 +1,5 @@
 import { CATEGORY_SEEDS } from "@/lib/domain/categories";
+import { PAYMENT_METHODS } from "@/lib/domain/payment";
 import type { DashboardSummary, DashboardView, Expense, HouseholdMember } from "@/lib/domain/types";
 import { monthKey, todayISO } from "@/lib/domain/dates";
 
@@ -24,6 +25,7 @@ export const DEMO_EXPENSES: Expense[] = [
     amountArs: 49752,
     categoryId: "supermercado",
     sourceType: "card_pdf",
+    paymentMethod: "tcmp",
     ownerProfileId: "guido",
     cardholderProfileId: "guido",
     confidence: 0.78,
@@ -45,6 +47,7 @@ export const DEMO_EXPENSES: Expense[] = [
     amountArs: 185000,
     categoryId: "expensas",
     sourceType: "manual",
+    paymentMethod: "efectivo_transferencia",
     ownerProfileId: "guido",
     confidence: 1,
     reviewStatus: "confirmed"
@@ -63,6 +66,7 @@ export const DEMO_EXPENSES: Expense[] = [
     amountArs: 14451,
     categoryId: "delivery",
     sourceType: "voice",
+    paymentMethod: "efectivo_transferencia",
     ownerProfileId: "dalu",
     confidence: 0.94,
     reviewStatus: "confirmed"
@@ -98,6 +102,13 @@ export function buildDashboardSummary(
       .filter((expense) => expense.ownerProfileId === profile || expense.cardholderProfileId === profile)
       .reduce((sum, expense) => sum + expense.amountArs, 0)
   }));
+  const byPaymentMethod = PAYMENT_METHODS.map(({ value, label }) => ({
+    method: value,
+    label,
+    amountArs: inMonth
+      .filter((expense) => (expense.paymentMethod ?? "efectivo_transferencia") === value)
+      .reduce((sum, expense) => sum + expense.amountArs, 0)
+  }));
   const merchantTotals = new Map<string, number>();
   for (const expense of inMonth) {
     merchantTotals.set(expense.merchantName, (merchantTotals.get(expense.merchantName) ?? 0) + expense.amountArs);
@@ -118,6 +129,7 @@ export function buildDashboardSummary(
       .reduce((sum, expense) => sum + expense.amountArs, 0),
     pendingCount: inMonth.filter((expense) => expense.reviewStatus === "pending").length,
     byCategory: byCategory.sort((a, b) => b.amountArs - a.amountArs).slice(0, 6),
+    byPaymentMethod,
     byProfile,
     topMerchants: [...merchantTotals.entries()]
       .map(([merchant, amountArs]) => ({ merchant, amountArs }))

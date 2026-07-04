@@ -205,6 +205,7 @@ export async function extractExpensesFromTranscript({
       amountArs,
       categoryId,
       sourceType: "voice" as const,
+      paymentMethod: "efectivo_transferencia" as const,
       ownerProfileId,
       notes: optionalString(record.notes) ?? undefined,
       confidence:

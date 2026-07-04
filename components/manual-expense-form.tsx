@@ -6,6 +6,7 @@ import { useFormStatus } from "react-dom";
 import { createManualExpense } from "@/app/actions";
 import { CATEGORY_SEEDS } from "@/lib/domain/categories";
 import { todayISO } from "@/lib/domain/dates";
+import { PAYMENT_METHODS } from "@/lib/domain/payment";
 import type { HouseholdMember } from "@/lib/domain/types";
 
 export function ManualExpenseForm({ member }: { member: HouseholdMember }) {
@@ -71,11 +72,13 @@ export function ManualExpenseForm({ member }: { member: HouseholdMember }) {
       </label>
 
       <label className="block text-sm font-bold text-[var(--ink)]">
-        Fuente de pago
-        <select name="paymentSource" className="field mt-1" defaultValue="efectivo-transferencia">
-          <option value="efectivo-transferencia">Efectivo / transferencia</option>
-          <option value="debito">Debito</option>
-          <option value="otro">Otro</option>
+        Medio de pago
+        <select name="paymentMethod" className="field mt-1" defaultValue="efectivo_transferencia">
+          {PAYMENT_METHODS.map((method) => (
+            <option key={method.value} value={method.value}>
+              {method.label}
+            </option>
+          ))}
         </select>
       </label>
 

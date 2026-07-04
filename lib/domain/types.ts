@@ -2,6 +2,7 @@ export type Currency = "ARS" | "USD";
 export type ExpenseSourceType = "manual" | "voice" | "card_pdf";
 export type ReviewStatus = "pending" | "auto_categorized" | "confirmed" | "excluded";
 export type StatementProvider = "mercado_pago" | "galicia_visa";
+export type PaymentMethod = "tcmp" | "galicia" | "efectivo_transferencia";
 
 export type ProfileKey = "guido" | "dalu";
 
@@ -49,6 +50,7 @@ export type ExpenseDraft = {
   amountArs: number;
   categoryId: string | null;
   sourceType: ExpenseSourceType;
+  paymentMethod?: PaymentMethod;
   ownerProfileId: string | null;
   cardholderProfileId?: string | null;
   notes?: string;
@@ -74,6 +76,7 @@ export type DashboardSummary = {
   voiceTotalArs: number;
   pendingCount: number;
   byCategory: Array<{ categoryId: string; category: string; color: string; amountArs: number }>;
+  byPaymentMethod: Array<{ method: PaymentMethod; label: string; amountArs: number }>;
   byProfile: Array<{ profile: string; amountArs: number }>;
   topMerchants: Array<{ merchant: string; amountArs: number }>;
 };

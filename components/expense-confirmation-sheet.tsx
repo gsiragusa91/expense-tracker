@@ -5,7 +5,8 @@ import { Check, Trash2, X } from "lucide-react";
 import { confirmExpenseDrafts } from "@/app/actions";
 import { CATEGORY_SEEDS } from "@/lib/domain/categories";
 import { amountToArs } from "@/lib/domain/money";
-import type { Currency, ExpenseDraft, ProfileKey } from "@/lib/domain/types";
+import { PAYMENT_METHODS } from "@/lib/domain/payment";
+import type { Currency, ExpenseDraft, PaymentMethod, ProfileKey } from "@/lib/domain/types";
 
 type Props = {
   open: boolean;
@@ -160,6 +161,20 @@ export function ExpenseConfirmationSheet({ open, drafts, title = "Confirmar gast
                     {CATEGORY_SEEDS.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="col-span-2 text-xs font-semibold text-[var(--muted)]">
+                  Medio de pago
+                  <select
+                    value={row.paymentMethod ?? "efectivo_transferencia"}
+                    onChange={(event) => updateRow(index, { paymentMethod: event.target.value as PaymentMethod })}
+                    className="field mt-1"
+                  >
+                    {PAYMENT_METHODS.map((method) => (
+                      <option key={method.value} value={method.value}>
+                        {method.label}
                       </option>
                     ))}
                   </select>

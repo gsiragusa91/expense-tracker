@@ -14,6 +14,7 @@ import type {
   ReviewStatus,
   StatementProvider
 } from "@/lib/domain/types";
+import { providerToPaymentMethod, sanitizePaymentMethod } from "@/lib/domain/payment";
 import { parseGaliciaVisaStatement } from "@/lib/import/galicia";
 import { parseMercadoPagoStatement } from "@/lib/import/mercado-pago";
 import { extractPdfTextFromBytes } from "@/lib/import/pdf-text";
@@ -79,6 +80,7 @@ function normalizeDraftForInsert(draft: ExpenseDraft, householdId: string, membe
     amount_ars: draft.amountArs,
     category_id: draft.categoryId,
     source_type: draft.sourceType,
+    payment_method: draft.paymentMethod ?? "efectivo_transferencia",
     owner_profile_id: draft.ownerProfileId,
     cardholder_profile_id: draft.cardholderProfileId ?? null,
     created_by_member_id: memberId,
@@ -155,8 +157,8 @@ export async function createManualExpense(formData: FormData) {
     formString(formData, "categoryId") || categorizeMerchant(merchantName, learnedRules).categoryId;
   const memberProfile = context.member.profileKey;
   const ownerProfileId = sanitizeProfile(formString(formData, "ownerProfileId"), memberProfile);
+  const paymentMethod = sanitizePaymentMethod(formString(formData, "paymentMethod"));
   const amountArs = amountToArs(amountOriginal, currency, fxRate);
-  const noteParts = [formString(formData, "paymentSource"), formString(formData, "notes")].filter(Boolean);
 
   const draft: ExpenseDraft = {
     expenseDate: formString(formData, "expenseDate") || todayISO(),
@@ -169,10 +171,11 @@ export async function createManualExpense(formData: FormData) {
     amountArs,
     categoryId,
     sourceType: "manual",
+    paymentMethod,
     ownerProfileId,
     confidence: categoryId ? 1 : 0,
     reviewStatus: categoryId ? "confirmed" : "pending",
-    notes: noteParts.join(" - ") || undefined
+    notes: formString(formData, "notes") || undefined
   };
 
   await confirmExpenseDrafts([draft]);
@@ -283,6 +286,7 @@ export async function commitStatementImport(
         amountArs: row.amountArs,
         categoryId: row.categoryId,
         sourceType: "card_pdf",
+        paymentMethod: providerToPaymentMethod(payload.provider),
         ownerProfileId: row.cardholderProfileKey ?? context.member.profileKey,
         cardholderProfileId: row.cardholderProfileKey,
         confidence: row.confidence,

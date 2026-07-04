@@ -36,6 +36,7 @@ function mapExpense(row: Record<string, unknown>): Expense {
     amountArs: Number(row.amount_ars),
     categoryId: typeof row.category_id === "string" ? row.category_id : null,
     sourceType: row.source_type as Expense["sourceType"],
+    paymentMethod: (row.payment_method as Expense["paymentMethod"]) ?? "efectivo_transferencia",
     ownerProfileId: typeof row.owner_profile_id === "string" ? row.owner_profile_id : null,
     cardholderProfileId:
       typeof row.cardholder_profile_id === "string" ? row.cardholder_profile_id : null,

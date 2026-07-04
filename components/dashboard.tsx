@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { AlertCircle, ArrowUpRight, CreditCard, Mic, PencilLine } from "lucide-react";
+import { AlertCircle, ArrowUpRight, CreditCard, Wallet } from "lucide-react";
 import { CategoryIcon } from "@/components/category-icon";
 import { SpendCharts } from "@/components/spend-charts";
 import { categoryById } from "@/lib/domain/categories";
@@ -82,9 +82,14 @@ export function Dashboard({
           </span>
         </div>
         <div className="mt-4 grid grid-cols-3 gap-2">
-          <MiniKpi icon={<CreditCard size={18} />} label="Tarjetas" value={formatMoney(summary.cardTotalArs)} />
-          <MiniKpi icon={<PencilLine size={18} />} label="Manual" value={formatMoney(summary.manualTotalArs)} />
-          <MiniKpi icon={<Mic size={18} />} label="Voz" value={formatMoney(summary.voiceTotalArs)} />
+          {summary.byPaymentMethod.map((pm) => (
+            <MiniKpi
+              key={pm.method}
+              icon={pm.method === "efectivo_transferencia" ? <Wallet size={18} /> : <CreditCard size={18} />}
+              label={pm.label}
+              value={formatMoney(pm.amountArs)}
+            />
+          ))}
         </div>
       </section>
 
