@@ -1,6 +1,6 @@
 import { ensureNodeDomPolyfills } from "./node-dom-polyfill";
 
-type PdfTextItem = { str?: string };
+type PdfTextItem = { str?: string; transform?: number[]; hasEOL?: boolean };
 type PdfPage = {
   getTextContent: () => Promise<{ items: PdfTextItem[] }>;
 };
@@ -50,13 +50,41 @@ export async function extractPdfTextFromBytes(bytes: Uint8Array): Promise<string
   for (let pageNumber = 1; pageNumber <= doc.numPages; pageNumber += 1) {
     const page = await doc.getPage(pageNumber);
     const content = await page.getTextContent();
-    const text = content.items
-      .map((item) => item.str ?? "")
-      .join(" ")
-      .replace(/\s+/g, " ")
-      .trim();
-    pages.push(text);
+    pages.push(reconstructLines(content.items));
   }
 
   return pages.join("\n");
+}
+
+// getTextContent devuelve fragmentos sueltos sin saltos de linea; unirlos todos con
+// espacios (como se hacia antes) aplasta cada pagina en UNA linea y rompe los parsers,
+// que matchean consumo por linea. Reconstruimos las lineas agrupando fragmentos por su
+// posicion vertical (transform[5], la Y de la baseline) y respetando el flag hasEOL.
+function reconstructLines(items: PdfTextItem[]): string {
+  const lines: string[] = [];
+  let current: string[] = [];
+  let currentY: number | null = null;
+
+  const flush = () => {
+    const line = current.join(" ").replace(/\s+/g, " ").trim();
+    if (line) lines.push(line);
+    current = [];
+  };
+
+  for (const item of items) {
+    const y = Array.isArray(item.transform) ? item.transform[5] : null;
+    // Cambio de baseline mayor a ~2 unidades => fila nueva.
+    if (currentY !== null && y !== null && Math.abs(y - currentY) > 2) {
+      flush();
+    }
+    if (item.str) current.push(item.str);
+    if (y !== null) currentY = y;
+    if (item.hasEOL) {
+      flush();
+      currentY = null;
+    }
+  }
+  flush();
+
+  return lines.join("\n");
 }
