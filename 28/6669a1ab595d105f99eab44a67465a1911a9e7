@@ -1,0 +1,24 @@
+lib/voice/schema.ts
+  s_ff6670e2dc3013::t_7894f419a9ef97 1-6,25,36,48
+lib/server/openai.ts
+  s_ff6670e2dc3013::t_be79b071a5f793 165-171
+  s_ff6670e2dc3013::t_c3f9fecf45be44 188,195
+  s_ff6670e2dc3013::t_a60eef7282b8c5 114
+  s_ff6670e2dc3013::t_9c34278283db2f 1,10-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "286669a1ab595d105f99eab44a67465a1911a9e7",
+  "prompts": {},
+  "sessions": {
+    "s_ff6670e2dc3013": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cb55e9db-1f98-45ad-968c-70ca26f3f9e8",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@mercadolibre.com>"
+    }
+  }
+}
