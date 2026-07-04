@@ -26,6 +26,9 @@ export type StatementTotals = {
   totalUsd: number;
   computedConsumptionArs: number;
   computedConsumptionUsd: number;
+  // Total de consumos que el propio resumen declara (para el sanity check).
+  declaredConsumptionArs: number | null;
+  declaredConsumptionUsd: number | null;
 };
 
 export type ParsedStatement = {

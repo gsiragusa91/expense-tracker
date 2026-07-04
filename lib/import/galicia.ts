@@ -2,6 +2,7 @@ import { categorizeMerchant } from "@/lib/domain/categorize";
 import { parseGaliciaDate } from "@/lib/domain/dates";
 import { amountToArs, parseAmount } from "@/lib/domain/money";
 import { normalizeMerchant } from "@/lib/domain/merchants";
+import { reconciliationWarnings } from "./reconcile";
 import type { ParsedExpenseRow, ParsedStatement, ParseStatementOptions } from "./types";
 
 const LINE_RE = /^(\d{2}-\d{2}-\d{2})\s+(.*)$/;
@@ -71,6 +72,10 @@ export function parseGaliciaVisaStatement(
   let totalUsd = 0;
   let closingDate: string | null = null;
   let dueDate: string | null = null;
+  // Total de consumos declarado: suma de los "Total Consumos de <titular>" por tarjeta.
+  let declaredConsumptionArs = 0;
+  let declaredConsumptionUsd = 0;
+  let sawCardTotals = false;
 
   const headerDates = text.match(/(\d{2}-[A-Za-z]{3}-\d{2})\s+(\d{2}-[A-Za-z]{3}-\d{2})\s+(\d{2}-[A-Za-z]{3}-\d{2})\s+(\d{2}-[A-Za-z]{3}-\d{2})/);
   if (headerDates) {
@@ -99,6 +104,9 @@ export function parseGaliciaVisaStatement(
     const totalCard = line.match(TOTAL_CARD_RE);
     if (totalCard) {
       currentProfile = profileAfterTotalName(totalCard[1]) as "dalu" | null;
+      declaredConsumptionArs += parseAmount(totalCard[2]);
+      declaredConsumptionUsd += parseAmount(totalCard[3]);
+      sawCardTotals = true;
       continue;
     }
 
@@ -140,6 +148,17 @@ export function parseGaliciaVisaStatement(
 
   if (!rows.length) warnings.push("No se detectaron consumos en el resumen Galicia.");
 
+  const declaredArs = sawCardTotals ? declaredConsumptionArs : null;
+  const declaredUsd = sawCardTotals ? declaredConsumptionUsd : null;
+  warnings.push(
+    ...reconciliationWarnings({
+      computedArs: computedConsumptionArs,
+      declaredArs,
+      computedUsd: computedConsumptionUsd,
+      declaredUsd
+    })
+  );
+
   return {
     provider: "galicia_visa",
     statementMonth: closingDate ? closingDate.slice(0, 7) : null,
@@ -150,7 +169,9 @@ export function parseGaliciaVisaStatement(
       totalArs,
       totalUsd,
       computedConsumptionArs,
-      computedConsumptionUsd
+      computedConsumptionUsd,
+      declaredConsumptionArs: declaredArs,
+      declaredConsumptionUsd: declaredUsd
     },
     warnings
   };

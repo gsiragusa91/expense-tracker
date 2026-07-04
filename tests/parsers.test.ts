@@ -58,6 +58,28 @@ test("Galicia Visa parser keeps Guido and Dalu blocks and USD totals", () => {
   assert.equal(statement.rows[3].cardholderProfileKey, null);
 });
 
+test("sanity check flags a statement whose consumos don't add up", () => {
+  const balanced = [
+    "Fecha de cierre 30 de mayo",
+    "01/may RAPPI 100001 $ 10.000,00",
+    "02/may COTO 100002 $ 20.000,00",
+    "Consumos $ 30.000,00 US$ 0,00",
+    "Total a pagar $ 30.000,00 US$ 0,00"
+  ].join("\n");
+  const ok = parseMercadoPagoStatement(balanced, { statementYear: 2026, statementMonth: 5 });
+  assert.equal(ok.totals.declaredConsumptionArs, 30000);
+  assert.ok(!ok.warnings.some((warning) => warning.includes("no coincide")));
+
+  const missing = [
+    "Fecha de cierre 30 de mayo",
+    "01/may RAPPI 100001 $ 10.000,00",
+    "Consumos $ 30.000,00 US$ 0,00",
+    "Total a pagar $ 30.000,00 US$ 0,00"
+  ].join("\n");
+  const bad = parseMercadoPagoStatement(missing, { statementYear: 2026, statementMonth: 5 });
+  assert.ok(bad.warnings.some((warning) => warning.includes("no coincide")));
+});
+
 test("categorization includes Expensas as first-class seed", () => {
   const result = categorizeMerchant("Administracion consorcio expensas edificio");
 

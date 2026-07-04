@@ -2,6 +2,7 @@ import { categorizeMerchant } from "@/lib/domain/categorize";
 import { amountToArs, parseAmount } from "@/lib/domain/money";
 import { normalizeMerchant } from "@/lib/domain/merchants";
 import { parseShortSpanishDate } from "@/lib/domain/dates";
+import { reconciliationWarnings } from "./reconcile";
 import type { ParsedExpenseRow, ParsedStatement, ParseStatementOptions } from "./types";
 
 const MONTH_NAMES: Record<string, number> = {
@@ -121,6 +122,27 @@ export function parseMercadoPagoStatement(
       ? `${statementYear}-${String(closing.month).padStart(2, "0")}-${String(closing.day).padStart(2, "0")}`
       : null;
 
+  const computedConsumptionArs = rows
+    .filter((row) => row.currency === "ARS")
+    .reduce((sum, row) => sum + row.amountArs, 0);
+  const computedConsumptionUsd = rows
+    .filter((row) => row.currency === "USD")
+    .reduce((sum, row) => sum + row.amountOriginal, 0);
+
+  // Total de consumos declarado por el resumen: linea "Consumos $ X US$ Y" del Consolidado.
+  const declaredMatch = text.match(/\bConsumos\s+\$\s*([\d.]+,\d{2})\s+US\$\s*([\d.]+,\d{2})/i);
+  const declaredConsumptionArs = declaredMatch ? parseAmount(declaredMatch[1]) : null;
+  const declaredConsumptionUsd = declaredMatch ? parseAmount(declaredMatch[2]) : null;
+
+  warnings.push(
+    ...reconciliationWarnings({
+      computedArs: computedConsumptionArs,
+      declaredArs: declaredConsumptionArs,
+      computedUsd: computedConsumptionUsd,
+      declaredUsd: declaredConsumptionUsd
+    })
+  );
+
   return {
     provider: "mercado_pago",
     statementMonth: closingDate ? closingDate.slice(0, 7) : null,
@@ -130,12 +152,10 @@ export function parseMercadoPagoStatement(
     totals: {
       totalArs,
       totalUsd,
-      computedConsumptionArs: rows
-        .filter((row) => row.currency === "ARS")
-        .reduce((sum, row) => sum + row.amountArs, 0),
-      computedConsumptionUsd: rows
-        .filter((row) => row.currency === "USD")
-        .reduce((sum, row) => sum + row.amountOriginal, 0)
+      computedConsumptionArs,
+      computedConsumptionUsd,
+      declaredConsumptionArs,
+      declaredConsumptionUsd
     },
     warnings
   };
