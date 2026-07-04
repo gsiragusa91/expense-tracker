@@ -41,10 +41,11 @@ export function VoiceDock({ open, member, onClose }: Props) {
     const formData = new FormData();
     formData.append("audio", blob, "expense-voice.webm");
     const response = await fetch("/api/voice/parse", { method: "POST", body: formData });
-    const body = (await response.json()) as { transcript?: string; expenses?: ExpenseDraft[]; error?: string; warnings?: string[] };
+    const body = (await response.json()) as { transcript?: string; expenses?: ExpenseDraft[]; error?: string; detail?: string; warnings?: string[] };
     if (!response.ok || !body.expenses?.length) {
       setState("idle");
-      setError(body.error ?? "No pude detectar gastos en el audio.");
+      const base = body.error ?? "No pude detectar gastos en el audio.";
+      setError(body.detail ? `${base} · ${body.detail}` : base);
       return;
     }
     setTranscript(body.transcript ?? null);

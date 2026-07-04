@@ -9,6 +9,7 @@ export type VoiceErrorCode =
   | "rate_limited"
   | "openai_unavailable"
   | "network"
+  | "unauthenticated"
   | "unknown";
 
 export class VoiceError extends Error {
@@ -34,5 +35,6 @@ export const VOICE_ERRORS: Record<VoiceErrorCode, { message: string; hint?: stri
   rate_limited: { message: "OpenAI está limitando los pedidos." },
   openai_unavailable: { message: "OpenAI no está disponible ahora." },
   network: { message: "Hubo un problema de red." },
+  unauthenticated: { message: "Necesitás iniciar sesión para usar la voz." },
   unknown: { message: "No pude procesar el audio." }
 };

@@ -184,6 +184,12 @@ export async function extractExpensesFromTranscript({
   };
 }
 
-export function voiceErrorPayload(code: VoiceErrorCode) {
-  return { errorCode: code, error: VOICE_ERRORS[code].message, expenses: [], warnings: [] };
+export function voiceErrorPayload(code: VoiceErrorCode, detail?: string) {
+  return {
+    errorCode: code,
+    error: VOICE_ERRORS[code].message,
+    detail: detail ?? null,
+    expenses: [],
+    warnings: []
+  };
 }

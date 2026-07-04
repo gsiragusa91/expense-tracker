@@ -12,7 +12,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   const context = await getAppContext();
   if (context.mode === "unauthenticated") {
-    return NextResponse.json(voiceErrorPayload("openai_auth"), { status: 401 });
+    return NextResponse.json(voiceErrorPayload("unauthenticated"), { status: 401 });
   }
 
   const formData = await request.formData();
@@ -55,9 +55,11 @@ export async function POST(request: Request) {
     const parsed = await extractExpensesFromTranscript({ transcript, profileKey, fxRate });
     return NextResponse.json(parsed);
   } catch (error) {
-    if (error instanceof VoiceError) {
-      return NextResponse.json(voiceErrorPayload(error.code), { status: 400 });
-    }
-    return NextResponse.json(voiceErrorPayload("unknown"), { status: 500 });
+    const code = error instanceof VoiceError ? error.code : "unknown";
+    const detail = error instanceof Error ? error.message : String(error);
+    console.error("[voice/parse] fallo:", code, detail);
+    return NextResponse.json(voiceErrorPayload(code, detail), {
+      status: error instanceof VoiceError ? 400 : 500
+    });
   }
 }
