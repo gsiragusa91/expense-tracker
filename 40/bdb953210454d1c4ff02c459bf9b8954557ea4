@@ -1,0 +1,68 @@
+tests/categories.test.ts
+  s_8089624c1a8d0e::t_6be30fe198a1a6 1-66
+app/review/page.tsx
+  s_8089624c1a8d0e::t_7e3c0b947b6159 3,13-16
+lib/server/context.ts
+  s_8089624c1a8d0e::t_38fb87e298fdd8 53-60,62-65
+  s_8089624c1a8d0e::t_b5ae5af4470ce9 108-109,111-118,123
+  s_8089624c1a8d0e::t_80db94ae42b9fb 141
+  s_8089624c1a8d0e::t_5c1ca4adf6fe43 110
+  s_8089624c1a8d0e::t_2ffffc16aa7852 3
+  s_8089624c1a8d0e::t_44a4d326a87728 61
+components/category-badge.tsx
+  s_8089624c1a8d0e::t_75a148734ae79c 1-2,4-11
+lib/domain/types.ts
+  s_8089624c1a8d0e::t_231a866e402750 26-31
+  s_8089624c1a8d0e::t_457e8df8f692c4 32-34
+app/page.tsx
+  s_8089624c1a8d0e::t_3c8b982c630c3a 24
+lib/server/demo-data.ts
+  s_8089624c1a8d0e::t_64a90ee5d41d09 85-86,92-102
+  s_8089624c1a8d0e::t_09820b6473d511 1,3
+lib/domain/categories.ts
+  s_8089624c1a8d0e::t_6844f339c1044f 13
+  s_8089624c1a8d0e::t_419a66f4e63b1b 3-6,8-12,14-28,31-42,45-75
+  s_8089624c1a8d0e::t_96132bced917f3 29-30
+components/category-icon.tsx
+  s_8089624c1a8d0e::t_1b9980004c510d 1-2,8-9,13,15
+components/category-options.tsx
+  s_8089624c1a8d0e::t_0c9cf0517132cc 1-24
+components/category-manager.tsx
+  s_8089624c1a8d0e::t_b445da254c8d96 1-175
+app/actions.ts
+  s_8089624c1a8d0e::t_756e70fd49aded 386
+  s_8089624c1a8d0e::t_a54d9498f2850c 379-385,387-498
+components/spend-charts.tsx
+  s_8089624c1a8d0e::t_012d6ca7f4abeb 268
+  s_8089624c1a8d0e::t_a03a629dd67f53 3-4,6,8-11,33-34,39,44-49,52-53,55,60,64,68-70,72,78,84,88,91,94-108,110,115,119-120,132-133,135,137,147,149-157,178-202,214,216-267,269-285,303-316,344-346,365-366
+supabase/migrations/20260706120000_categories_hierarchy.sql
+  s_8089624c1a8d0e::t_c923360ec46015 19
+  s_8089624c1a8d0e::t_28dd76e5645a61 47-48
+  s_8089624c1a8d0e::t_d9ae2d638dba94 1-18,20-46,49-60
+components/dashboard.tsx
+  s_8089624c1a8d0e::t_830c95a297dbf1 170,174
+  s_8089624c1a8d0e::t_815a93e15eabb7 139
+  s_8089624c1a8d0e::t_f428f0d2695ed6 26-27,33
+  s_8089624c1a8d0e::t_19cda4d27c2f5c 98
+  s_8089624c1a8d0e::t_ba4f489efdf04a 6,8
+components/review-list.tsx
+  s_8089624c1a8d0e::t_c5078cbb55d6b2 3,5,7-15
+  s_8089624c1a8d0e::t_d40ad490eb4b22 53
+  s_8089624c1a8d0e::t_df8a1542fe1669 61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "40bdb953210454d1c4ff02c459bf9b8954557ea4",
+  "prompts": {},
+  "sessions": {
+    "s_8089624c1a8d0e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "277a5114-2cc2-40e0-8095-2bdcf6d0aa6d",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": null
+    }
+  }
+}
