@@ -376,3 +376,123 @@ export async function updateExpenseReviewAction(formData: FormData) {
   revalidateApp();
   redirect("/review?saved=1");
 }
+
+// slug estable a partir del nombre (minúsculas, sin acentos, guiones).
+function slugify(value: string) {
+  return (
+    value
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 40) || "cat"
+  );
+}
+
+// Crea una categoría (padre si parentId vacío) o subcategoría en el hogar del usuario.
+export async function createCategoryAction(formData: FormData) {
+  const context = await getAppContext();
+  if (context.mode !== "supabase") redirect("/review");
+  const supabase = await createClient();
+  if (!supabase) redirect("/review");
+
+  const name = formString(formData, "name");
+  if (!name) redirect("/review?catError=nombre");
+  const color = formString(formData, "color") || "#d8e2dc";
+  const icon = formString(formData, "icon") || "🏷️";
+  const parentId = formString(formData, "parentId") || null;
+  // id global-único: slug + sufijo aleatorio (evita choques con globales y entre hogares).
+  const id = `${slugify(name)}-${crypto.randomUUID().replace(/-/g, "").slice(0, 6)}`;
+
+  const { error } = await supabase.from("expense_categories").insert({
+    id,
+    household_id: context.member.householdId,
+    name,
+    color,
+    kind: "other",
+    parent_id: parentId,
+    icon,
+    is_active: true,
+    sort_order: 0
+  });
+  if (error) redirect(`/review?catError=${encodeURIComponent(error.message)}`);
+
+  revalidateApp();
+  redirect("/review?catSaved=1");
+}
+
+// Edita nombre/color/ícono/padre de una categoría del hogar (RLS bloquea las globales).
+export async function updateCategoryAction(formData: FormData) {
+  const context = await getAppContext();
+  if (context.mode !== "supabase") redirect("/review");
+  const supabase = await createClient();
+  if (!supabase) redirect("/review");
+
+  const id = formString(formData, "id");
+  const name = formString(formData, "name");
+  if (!id || !name) redirect("/review?catError=nombre");
+  const color = formString(formData, "color") || "#d8e2dc";
+  const icon = formString(formData, "icon") || "🏷️";
+  const parentId = formString(formData, "parentId") || null;
+
+  const { error } = await supabase
+    .from("expense_categories")
+    .update({ name, color, icon, parent_id: parentId })
+    .eq("household_id", context.member.householdId)
+    .eq("id", id);
+  if (error) redirect(`/review?catError=${encodeURIComponent(error.message)}`);
+
+  revalidateApp();
+  redirect("/review?catSaved=1");
+}
+
+// Soft-delete: is_active=false. Exige reasignar antes si tiene gastos asociados.
+export async function deleteCategoryAction(formData: FormData) {
+  const context = await getAppContext();
+  if (context.mode !== "supabase") redirect("/review");
+  const supabase = await createClient();
+  if (!supabase) redirect("/review");
+
+  const id = formString(formData, "id");
+  if (!id) redirect("/review");
+
+  const used = await supabase
+    .from("expense_expenses")
+    .select("id", { count: "exact", head: true })
+    .eq("household_id", context.member.householdId)
+    .eq("category_id", id);
+  if ((used.count ?? 0) > 0) redirect("/review?catError=reasigna-primero");
+
+  const { error } = await supabase
+    .from("expense_categories")
+    .update({ is_active: false })
+    .eq("household_id", context.member.householdId)
+    .eq("id", id);
+  if (error) redirect(`/review?catError=${encodeURIComponent(error.message)}`);
+
+  revalidateApp();
+  redirect("/review?catSaved=1");
+}
+
+// Reasigna en bloque todos los gastos de una subcategoría a otra.
+export async function reassignExpensesCategoryAction(formData: FormData) {
+  const context = await getAppContext();
+  if (context.mode !== "supabase") redirect("/review");
+  const supabase = await createClient();
+  if (!supabase) redirect("/review");
+
+  const fromId = formString(formData, "fromId");
+  const toId = formString(formData, "toId");
+  if (!fromId || !toId || fromId === toId) redirect("/review?catError=reasignar");
+
+  const { error } = await supabase
+    .from("expense_expenses")
+    .update({ category_id: toId })
+    .eq("household_id", context.member.householdId)
+    .eq("category_id", fromId);
+  if (error) redirect(`/review?catError=${encodeURIComponent(error.message)}`);
+
+  revalidateApp();
+  redirect("/review?catSaved=1");
+}

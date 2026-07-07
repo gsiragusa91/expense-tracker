@@ -1,6 +1,6 @@
-import { CATEGORY_SEEDS } from "@/lib/domain/categories";
+import { CATEGORY_SEEDS, parentCategories, parentOf } from "@/lib/domain/categories";
 import { PAYMENT_METHODS } from "@/lib/domain/payment";
-import type { DashboardSummary, DashboardView, Expense, HouseholdMember } from "@/lib/domain/types";
+import type { Category, DashboardSummary, DashboardView, Expense, HouseholdMember } from "@/lib/domain/types";
 import { monthKey, todayISO } from "@/lib/domain/dates";
 
 export const DEMO_MEMBER: HouseholdMember = {
@@ -82,20 +82,24 @@ export function viewDate(expense: Expense, view: DashboardView) {
 export function buildDashboardSummary(
   expenses: Expense[],
   month = monthKey(todayISO()),
-  view: DashboardView = "cashflow"
+  view: DashboardView = "cashflow",
+  categories: Category[] = CATEGORY_SEEDS
 ): DashboardSummary {
   const inMonth = expenses.filter(
     (expense) => monthKey(viewDate(expense, view)) === month && expense.reviewStatus !== "excluded"
   );
   const totalArs = inMonth.reduce((sum, expense) => sum + expense.amountArs, 0);
-  const byCategory = CATEGORY_SEEDS.map((category) => ({
-    categoryId: category.id,
-    category: category.name,
-    color: category.color,
-    amountArs: inMonth
-      .filter((expense) => expense.categoryId === category.id)
-      .reduce((sum, expense) => sum + expense.amountArs, 0)
-  })).filter((row) => row.amountArs > 0);
+  // Agrupado por CATEGORÍA PADRE: cada gasto guarda una subcategoría; parentOf() la sube al padre.
+  const byCategory = parentCategories(categories)
+    .map((parent) => ({
+      categoryId: parent.id,
+      category: parent.name,
+      color: parent.color,
+      amountArs: inMonth
+        .filter((expense) => parentOf(expense.categoryId, categories).id === parent.id)
+        .reduce((sum, expense) => sum + expense.amountArs, 0)
+    }))
+    .filter((row) => row.amountArs > 0);
   const byProfile = ["guido", "dalu"].map((profile) => ({
     profile: profile === "guido" ? "Guido" : "Dalu",
     amountArs: inMonth

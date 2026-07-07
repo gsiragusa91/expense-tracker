@@ -1,15 +1,18 @@
-import { categoryById } from "@/lib/domain/categories";
+import { categoryById, CATEGORY_SEEDS } from "@/lib/domain/categories";
+import type { Category } from "@/lib/domain/types";
 
 // Estilo "emoji cálido": el emoji de la categoría dentro de una burbuja neutra.
 // El tamaño de fuente se deriva del `size` para que el emoji quede proporcionado.
 export function CategoryIcon({
   categoryId,
-  size = 40
+  size = 40,
+  categories = CATEGORY_SEEDS
 }: {
   categoryId: string | null;
   size?: number;
+  categories?: Category[];
 }) {
-  const category = categoryId ? categoryById(categoryId) : null;
+  const category = categoryId ? categoryById(categoryId, categories) : null;
   const emoji = category?.icon ?? "💸";
 
   return (

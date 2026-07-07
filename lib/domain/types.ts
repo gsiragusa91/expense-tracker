@@ -23,6 +23,15 @@ export type Category = {
   color: string;
   // Emoji que identifica visualmente la categoría (estilo "emoji cálido").
   icon: string;
+  // Jerarquía Categoría › Subcategoría. parentId === null ⇒ la fila es una Categoría (padre);
+  // parentId !== null ⇒ es una Subcategoría que cuelga de ese padre. Un gasto guarda SIEMPRE
+  // el id de una subcategoría; el padre se deriva con parentOf().
+  parentId: string | null;
+  // Soft-delete: las categorías borradas quedan is_active=false para no romper gastos históricos.
+  isActive: boolean;
+  // household_id de la fila en DB. null/undefined ⇒ categoría GLOBAL (no editable por el usuario);
+  // con valor ⇒ categoría propia del hogar (editable/borrable). Ausente en el seed demo.
+  householdId?: string | null;
   kind:
     | "food"
     | "home"

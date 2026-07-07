@@ -21,6 +21,7 @@ export default async function HomePage({
         expenses={data.expenses}
         availableMonths={data.availableMonths}
         view={dashboardView}
+        categories={data.categories}
       />
     </AppShell>
   );

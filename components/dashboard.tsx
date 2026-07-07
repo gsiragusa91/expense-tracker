@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import { AlertCircle, ArrowUpRight, CreditCard, Wallet } from "lucide-react";
 import { CategoryIcon } from "@/components/category-icon";
 import { SpendCharts } from "@/components/spend-charts";
-import { categoryById } from "@/lib/domain/categories";
+import { categoryById, CATEGORY_SEEDS } from "@/lib/domain/categories";
 import { formatMoney } from "@/lib/domain/money";
-import type { DashboardSummary, DashboardView, Expense } from "@/lib/domain/types";
+import type { Category, DashboardSummary, DashboardView, Expense } from "@/lib/domain/types";
 
 const monthFormatter = new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric", timeZone: "UTC" });
 
@@ -23,12 +23,14 @@ export function Dashboard({
   summary,
   expenses,
   availableMonths = [summary.month],
-  view = "cashflow"
+  view = "cashflow",
+  categories = CATEGORY_SEEDS
 }: {
   summary: DashboardSummary;
   expenses: Expense[];
   availableMonths?: string[];
   view?: DashboardView;
+  categories?: Category[];
 }) {
   const delta = pct(summary.totalArs, summary.previousTotalArs);
   const maxCategory = Math.max(...summary.byCategory.map((row) => row.amountArs), 1);
@@ -93,7 +95,7 @@ export function Dashboard({
         </div>
       </section>
 
-      <SpendCharts expenses={expenses} month={summary.month} view={view} />
+      <SpendCharts expenses={expenses} month={summary.month} view={view} categories={categories} />
 
       <section className="flex gap-2 overflow-x-auto rounded-[20px] border border-[var(--border)] bg-white p-2 shadow-sm">
         {availableMonths.map((month) => (
@@ -134,7 +136,7 @@ export function Dashboard({
             <div key={row.category}>
               <div className="mb-1 flex items-center justify-between text-sm">
                 <span className="flex items-center gap-1.5 font-semibold text-[var(--ink)]">
-                  <CategoryIcon categoryId={row.categoryId} size={22} />
+                  <CategoryIcon categoryId={row.categoryId} size={22} categories={categories} />
                   {row.category}
                 </span>
                 <span className="font-bold text-[var(--ink)]">{formatMoney(row.amountArs)}</span>
@@ -165,11 +167,11 @@ export function Dashboard({
         <div className="space-y-2">
           {recent.map((expense) => (
             <div key={expense.id} className="flex items-center gap-3 rounded-2xl bg-[var(--surface-soft)] p-3">
-              <CategoryIcon categoryId={expense.categoryId} size={40} />
+              <CategoryIcon categoryId={expense.categoryId} size={40} categories={categories} />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-bold text-[var(--ink)]">{expense.description}</p>
                 <p className="mt-0.5 truncate text-xs text-[var(--muted)]">
-                  {categoryById(expense.categoryId).name} ·{" "}
+                  {categoryById(expense.categoryId, categories).name} ·{" "}
                   {expense.ownerProfileId === "dalu" || expense.cardholderProfileId === "dalu" ? "Dalu" : "Guido"}
                 </p>
               </div>

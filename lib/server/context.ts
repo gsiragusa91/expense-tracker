@@ -1,6 +1,6 @@
 import { CATEGORY_SEEDS } from "@/lib/domain/categories";
 import { monthKey } from "@/lib/domain/dates";
-import type { DashboardView, Expense, HouseholdMember } from "@/lib/domain/types";
+import type { Category, DashboardView, Expense, HouseholdMember } from "@/lib/domain/types";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { DEMO_EXPENSES, DEMO_MEMBER, buildDashboardSummary, latestExpenseMonth, viewDate } from "./demo-data";
 import { loadLocalRealExpenses } from "./local-real-data";
@@ -50,6 +50,19 @@ function mapExpense(row: Record<string, unknown>): Expense {
   };
 }
 
+function mapCategory(row: Record<string, unknown>): Category {
+  return {
+    id: String(row.id),
+    name: String(row.name),
+    color: String(row.color),
+    icon: typeof row.icon === "string" && row.icon ? String(row.icon) : "📦",
+    parentId: typeof row.parent_id === "string" ? row.parent_id : null,
+    isActive: row.is_active === undefined || row.is_active === null ? true : Boolean(row.is_active),
+    householdId: typeof row.household_id === "string" ? row.household_id : null,
+    kind: (row.kind as Category["kind"]) ?? "other"
+  };
+}
+
 export async function getAppContext(): Promise<AppContext> {
   if (!isSupabaseConfigured()) {
     const localRealExpenses = await loadLocalRealExpenses();
@@ -92,11 +105,22 @@ export async function getAppContext(): Promise<AppContext> {
     displayName: String(memberRes.data.display_name)
   } as const;
 
+  const categoriesRes = await supabase
+    .from("expense_categories")
+    .select("id, household_id, name, color, kind, parent_id, icon, is_active, sort_order")
+    .order("sort_order", { ascending: true });
+  // Fallback al seed si la migración de jerarquía todavía no se aplicó (la query falla por
+  // columnas inexistentes) o si la tabla no tiene filas: así la app no se rompe en la transición.
+  const categories =
+    !categoriesRes.error && categoriesRes.data && categoriesRes.data.length
+      ? categoriesRes.data.map((row) => mapCategory(row as Record<string, unknown>))
+      : CATEGORY_SEEDS;
+
   return {
     mode: "supabase",
     member,
     expenses: (expensesRes.data ?? []).map((row) => mapExpense(row as Record<string, unknown>)),
-    categories: CATEGORY_SEEDS
+    categories
   };
 }
 
@@ -114,7 +138,7 @@ export async function getDashboardData(month?: string, view: DashboardView = "ca
   return {
     ...context,
     view,
-    summary: buildDashboardSummary(context.expenses, selectedMonth, view),
+    summary: buildDashboardSummary(context.expenses, selectedMonth, view, context.categories),
     availableMonths
   };
 }

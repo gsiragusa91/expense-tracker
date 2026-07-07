@@ -1,10 +1,18 @@
 import { updateExpenseReviewAction } from "@/app/actions";
 import { CategoryBadge } from "@/components/category-badge";
-import { CATEGORY_SEEDS } from "@/lib/domain/categories";
+import { CategoryOptions } from "@/components/category-options";
 import { formatMoney } from "@/lib/domain/money";
-import type { Expense } from "@/lib/domain/types";
+import type { Category, Expense } from "@/lib/domain/types";
 
-export function ReviewList({ expenses, mode }: { expenses: Expense[]; mode: "demo" | "supabase" }) {
+export function ReviewList({
+  expenses,
+  mode,
+  categories
+}: {
+  expenses: Expense[];
+  mode: "demo" | "supabase";
+  categories: Category[];
+}) {
   const sorted = [...expenses].sort((a, b) => {
     const aPending = a.reviewStatus === "pending" ? 0 : 1;
     const bPending = b.reviewStatus === "pending" ? 0 : 1;
@@ -42,7 +50,7 @@ export function ReviewList({ expenses, mode }: { expenses: Expense[]; mode: "dem
               <p className="shrink-0 text-lg font-black text-[var(--ink)]">{formatMoney(expense.amountArs)}</p>
             </div>
             <div className="mb-3 flex items-center gap-2">
-              <CategoryBadge categoryId={expense.categoryId} />
+              <CategoryBadge categoryId={expense.categoryId} categories={categories} />
               <span className="rounded-full bg-[var(--surface-soft)] px-2.5 py-1 text-xs font-bold text-[var(--muted)]">
                 {expense.reviewStatus}
               </span>
@@ -50,11 +58,7 @@ export function ReviewList({ expenses, mode }: { expenses: Expense[]; mode: "dem
             <div className="grid grid-cols-1 gap-2">
               <select name="categoryId" defaultValue={expense.categoryId ?? ""} className="field">
                 <option value="">Sin asignar</option>
-                {CATEGORY_SEEDS.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
+                <CategoryOptions categories={categories} />
               </select>
               <select name="reviewStatus" defaultValue={expense.reviewStatus} className="field">
                 <option value="pending">Sin revisar</option>
