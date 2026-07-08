@@ -22,6 +22,7 @@ export default async function HomePage({
         availableMonths={data.availableMonths}
         view={dashboardView}
         categories={data.categories}
+        editable={data.mode === "supabase"}
       />
     </AppShell>
   );

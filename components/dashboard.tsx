@@ -24,13 +24,15 @@ export function Dashboard({
   expenses,
   availableMonths = [summary.month],
   view = "cashflow",
-  categories = CATEGORY_SEEDS
+  categories = CATEGORY_SEEDS,
+  editable = false
 }: {
   summary: DashboardSummary;
   expenses: Expense[];
   availableMonths?: string[];
   view?: DashboardView;
   categories?: Category[];
+  editable?: boolean;
 }) {
   const delta = pct(summary.totalArs, summary.previousTotalArs);
   const maxCategory = Math.max(...summary.byCategory.map((row) => row.amountArs), 1);
@@ -95,23 +97,15 @@ export function Dashboard({
         </div>
       </section>
 
-      <SpendCharts expenses={expenses} month={summary.month} view={view} categories={categories} />
-
-      <section className="flex gap-2 overflow-x-auto rounded-[20px] border border-[var(--border)] bg-white p-2 shadow-sm">
-        {availableMonths.map((month) => (
-          <Link
-            key={month}
-            href={makeHref(month, view)}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold capitalize ${
-              month === summary.month
-                ? "bg-[var(--primary-strong)] text-white"
-                : "bg-[var(--surface-soft)] text-[var(--ink)]"
-            }`}
-          >
-            {monthLabel(month)}
-          </Link>
-        ))}
-      </section>
+      <SpendCharts
+        expenses={expenses}
+        month={summary.month}
+        view={view}
+        categories={categories}
+        editable={editable}
+        returnTo={makeHref(summary.month, view)}
+        availableMonths={availableMonths}
+      />
 
       <section className="grid grid-cols-2 gap-3">
         {summary.byProfile.map((row) => (

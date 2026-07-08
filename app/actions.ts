@@ -377,6 +377,33 @@ export async function updateExpenseReviewAction(formData: FormData) {
   redirect("/review?saved=1");
 }
 
+// Recategoriza un gasto desde el Desglose de Inicio (tap → editar) y vuelve a la misma
+// pantalla (returnTo), sin desviar a /review como updateExpenseReviewAction.
+export async function recategorizeExpenseAction(formData: FormData) {
+  const rt = formString(formData, "returnTo");
+  const returnTo = rt.startsWith("/") ? rt : "/";
+  const context = await getAppContext();
+  if (context.mode !== "supabase") redirect(returnTo);
+  const supabase = await createClient();
+  if (!supabase) redirect(returnTo);
+
+  const id = formString(formData, "id");
+  const categoryId = formString(formData, "categoryId") || null;
+
+  await supabase
+    .from("expense_expenses")
+    .update({
+      category_id: categoryId,
+      review_status: categoryId ? "confirmed" : "pending",
+      confidence: categoryId ? 1 : null
+    })
+    .eq("household_id", context.member.householdId)
+    .eq("id", id);
+
+  revalidateApp();
+  redirect(returnTo);
+}
+
 // slug estable a partir del nombre (minúsculas, sin acentos, guiones).
 function slugify(value: string) {
   return (
