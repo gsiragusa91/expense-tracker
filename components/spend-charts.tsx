@@ -1,6 +1,10 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { ChevronDown } from "lucide-react";
+import { recategorizeExpenseAction } from "@/app/actions";
+import { CategoryOptions } from "@/components/category-options";
 import { CATEGORY_SEEDS, parentOf } from "@/lib/domain/categories";
 import { formatMoney } from "@/lib/domain/money";
 import type { Category, DashboardView, Expense } from "@/lib/domain/types";
@@ -10,6 +14,7 @@ import type { Category, DashboardView, Expense } from "@/lib/domain/types";
 const RESTO_KEY = "__resto__";
 const RESTO_COLOR = "#c9d3da";
 const TOP_N = 5;
+const BREAKDOWN_LIMIT = 5; // cuántos gastos del desglose se muestran antes de "ver más"
 
 function lastMonths(endMonth: string, n: number): string[] {
   const [y, m] = endMonth.split("-").map(Number);
@@ -26,22 +31,46 @@ function shortMonth(month: string) {
     .toLocaleDateString("es-AR", { month: "short", timeZone: "UTC" })
     .replace(".", "");
 }
+function monthPillLabel(month: string) {
+  const [y, m] = month.split("-").map(Number);
+  const s = new Date(Date.UTC(y, m - 1, 1))
+    .toLocaleDateString("es-AR", { month: "short", year: "numeric", timeZone: "UTC" })
+    .replace(".", "");
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
 export function SpendCharts({
   expenses,
   month,
   view,
-  categories = CATEGORY_SEEDS
+  categories = CATEGORY_SEEDS,
+  editable = false,
+  returnTo = "/",
+  availableMonths = []
 }: {
   expenses: Expense[];
   month: string;
   view: DashboardView;
   categories?: Category[];
+  editable?: boolean;
+  returnTo?: string;
+  availableMonths?: string[];
 }) {
+  // Href para cambiar de mes. Se construye acá adentro (no se puede pasar una función
+  // desde el Server Component Dashboard a este Client Component).
+  const monthHref = (m: string) => {
+    const params = new URLSearchParams();
+    if (m) params.set("month", m);
+    if (view !== "cashflow") params.set("view", view);
+    const q = params.toString();
+    return q ? `/?${q}` : "/";
+  };
   const [selected, setSelected] = useState<string | null>(null);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const [showAllBreakdown, setShowAllBreakdown] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
   const catById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
@@ -285,6 +314,23 @@ export function SpendCharts({
         </div>
       </div>
 
+      {/* Selector de mes: encima de "Categorías del mes" para cambiar el mes desde acá */}
+      {availableMonths.length > 0 ? (
+        <section className="flex gap-2 overflow-x-auto rounded-[20px] border border-[var(--border)] bg-white p-2 shadow-sm">
+          {availableMonths.map((m) => (
+            <Link
+              key={m}
+              href={monthHref(m)}
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${
+                m === month ? "bg-[var(--primary-strong)] text-white" : "bg-[var(--surface-soft)] text-[var(--ink)]"
+              }`}
+            >
+              {monthPillLabel(m)}
+            </Link>
+          ))}
+        </section>
+      ) : null}
+
       {/* Torta del mes + leyenda clickeable */}
       <div className="rounded-[24px] border border-[var(--border)] bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-lg font-extrabold text-[var(--ink)]">Categorías del mes</h2>
@@ -357,19 +403,59 @@ export function SpendCharts({
           </label>
         </div>
         <div className="space-y-2">
-          {breakdown.map((e) => (
-            <div key={e.id} className="flex items-center justify-between gap-3 rounded-2xl bg-[var(--surface-soft)] p-3">
-              <div className="min-w-0">
-                <p className="truncate font-bold text-[var(--ink)]">{e.description}</p>
-                <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[var(--muted)]">
-                  <span className="size-2 rounded-full" style={{ backgroundColor: seriesColor(parentKey(e)) }} />
-                  {catById.get(e.categoryId ?? "")?.name ?? "Sin categoría"} · {dateFor(e)}
-                </p>
+          {(showAllBreakdown ? breakdown : breakdown.slice(0, BREAKDOWN_LIMIT)).map((e) => {
+            const isEditing = editingId === e.id;
+            return (
+              <div key={e.id} className="rounded-2xl bg-[var(--surface-soft)] p-3">
+                <div
+                  className={`flex items-center justify-between gap-3 ${editable ? "cursor-pointer" : ""}`}
+                  onClick={editable ? () => setEditingId(isEditing ? null : e.id) : undefined}
+                  role={editable ? "button" : undefined}
+                  aria-expanded={editable ? isEditing : undefined}
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-bold text-[var(--ink)]">{e.description}</p>
+                    <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[var(--muted)]">
+                      <span className="size-2 rounded-full" style={{ backgroundColor: seriesColor(parentKey(e)) }} />
+                      {catById.get(e.categoryId ?? "")?.name ?? "Sin categoría"} · {dateFor(e)}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <p className="font-black text-[var(--ink)]">{formatMoney(e.amountArs)}</p>
+                    {editable ? (
+                      <ChevronDown size={16} className={`text-[var(--muted)] transition ${isEditing ? "rotate-180" : ""}`} />
+                    ) : null}
+                  </div>
+                </div>
+                {editable && isEditing ? (
+                  <form action={recategorizeExpenseAction} className="mt-3 flex items-end gap-2 border-t border-[var(--border)] pt-3">
+                    <input type="hidden" name="id" value={e.id} />
+                    <input type="hidden" name="returnTo" value={returnTo} />
+                    <label className="flex-1 text-xs font-semibold text-[var(--muted)]">
+                      Categoría
+                      <select name="categoryId" defaultValue={e.categoryId ?? ""} className="field mt-1">
+                        <option value="">Sin asignar</option>
+                        <CategoryOptions categories={categories} />
+                      </select>
+                    </label>
+                    <button type="submit" className="rounded-full bg-[var(--primary-strong)] px-4 py-2.5 text-sm font-bold text-white">
+                      Guardar
+                    </button>
+                  </form>
+                ) : null}
               </div>
-              <p className="shrink-0 font-black text-[var(--ink)]">{formatMoney(e.amountArs)}</p>
-            </div>
-          ))}
+            );
+          })}
           {!breakdown.length ? <p className="text-sm text-[var(--muted)]">No hay gastos con esos filtros.</p> : null}
+          {breakdown.length > BREAKDOWN_LIMIT ? (
+            <button
+              type="button"
+              onClick={() => setShowAllBreakdown((v) => !v)}
+              className="w-full rounded-2xl border border-[var(--border)] py-2 text-sm font-bold text-[var(--primary-strong)]"
+            >
+              {showAllBreakdown ? "Ver menos" : `Ver más (${breakdown.length - BREAKDOWN_LIMIT})`}
+            </button>
+          ) : null}
         </div>
       </div>
     </section>
