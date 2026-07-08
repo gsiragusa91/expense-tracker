@@ -1,0 +1,35 @@
+app/page.tsx
+  s_8089624c1a8d0e::t_901ac7ee6cfd5e 25
+components/spend-charts.tsx
+  s_8089624c1a8d0e::t_705fe9a54f9109 4
+  s_8089624c1a8d0e::t_8370ab93167503 46-48,55-56,72-73
+  s_8089624c1a8d0e::t_69b90c526be1a5 49,57,59-67
+  s_8089624c1a8d0e::t_4664fa4569ee9c 318-332
+  s_8089624c1a8d0e::t_06ff8846ea4d92 34-40
+  s_8089624c1a8d0e::t_65bb150a6d697e 5-7
+  s_8089624c1a8d0e::t_12b442d981d4bc 17
+  s_8089624c1a8d0e::t_cd493fe0bc12a9 406-445,447-448,450-458
+  s_8089624c1a8d0e::t_007a1ba452119a 317,333
+app/actions.ts
+  s_8089624c1a8d0e::t_3c7f9862af913d 380-406
+components/dashboard.tsx
+  s_8089624c1a8d0e::t_022e091f031b34 27-28,35
+  s_8089624c1a8d0e::t_c218fc46b24ff9 100-106,108
+  s_8089624c1a8d0e::t_1c80bf2eb3bd61 107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1ea1e4c05bd2747f7120f8a5ba251ab25a2ad80f",
+  "prompts": {},
+  "sessions": {
+    "s_8089624c1a8d0e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "277a5114-2cc2-40e0-8095-2bdcf6d0aa6d",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guido Martin Siragusa <guido.siragusa@gmail.com>"
+    }
+  }
+}
